@@ -157,6 +157,73 @@ def update_supplier_amount(supplier_id, new_amount, transaction_type='adjustment
     finally:
         conn.close()
 
+def update_supplier(supplier_id, name, initial_amount, current_amount):
+    """Update supplier information"""
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    
+    try:
+        # Check if supplier exists
+        cursor.execute('SELECT Supplier_Name FROM suppliers WHERE Supplier_ID = ?', (supplier_id,))
+        if not cursor.fetchone():
+            return {'success': False, 'message': 'Supplier not found'}
+        
+        # Check if name is unique (exclude current supplier)
+        cursor.execute('SELECT Supplier_ID FROM suppliers WHERE Supplier_Name = ? AND Supplier_ID != ?', (name, supplier_id))
+        if cursor.fetchone():
+            return {'success': False, 'message': 'Supplier name already exists'}
+        
+        # Update supplier
+        cursor.execute('''
+            UPDATE suppliers 
+            SET Supplier_Name = ?, Initial_Amount = ?, Current_Amount = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE Supplier_ID = ?
+        ''', (name, initial_amount, current_amount, supplier_id))
+        
+        # Log transaction for amount change
+        cursor.execute('''
+            INSERT INTO transactions (supplier_id, transaction_type, amount, description)
+            VALUES (?, ?, ?, ?)
+        ''', (supplier_id, 'update', current_amount, f'Supplier updated - Current amount set to {current_amount}'))
+        
+        conn.commit()
+        return {'success': True, 'message': 'Supplier updated successfully'}
+    
+    except sqlite3.IntegrityError:
+        return {'success': False, 'message': 'Supplier name already exists'}
+    except Exception as e:
+        return {'success': False, 'message': f'Database error: {str(e)}'}
+    finally:
+        conn.close()
+
+def delete_supplier(supplier_id):
+    """Delete supplier and all associated transactions"""
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    
+    try:
+        # Check if supplier exists
+        cursor.execute('SELECT Supplier_Name FROM suppliers WHERE Supplier_ID = ?', (supplier_id,))
+        result = cursor.fetchone()
+        if not result:
+            return {'success': False, 'message': 'Supplier not found'}
+        
+        supplier_name = result[0]
+        
+        # Delete all transactions first (due to foreign key constraint)
+        cursor.execute('DELETE FROM transactions WHERE supplier_id = ?', (supplier_id,))
+        
+        # Delete the supplier
+        cursor.execute('DELETE FROM suppliers WHERE Supplier_ID = ?', (supplier_id,))
+        
+        conn.commit()
+        return {'success': True, 'message': f'Supplier "{supplier_name}" and all history deleted successfully'}
+    
+    except Exception as e:
+        return {'success': False, 'message': f'Database error: {str(e)}'}
+    finally:
+        conn.close()
+
 if __name__ == '__main__':
     # Initialize database when run directly
     init_database()

@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
-from database import init_database, add_supplier, get_all_suppliers, get_supplier_by_id
+from database import init_database, add_supplier, get_all_suppliers, get_supplier_by_id, update_supplier, delete_supplier
 
 load_dotenv()
 
@@ -69,6 +69,60 @@ def suppliers():
                 
         except ValueError:
             return jsonify({"message": "Invalid number format for amounts"}), 400
+        except Exception as e:
+            return jsonify({"message": f"Server error: {str(e)}"}), 500
+
+@app.route('/api/suppliers/<int:supplier_id>', methods=['PUT', 'DELETE'])
+def supplier_operations(supplier_id):
+    if request.method == 'PUT':
+        try:
+            data = request.get_json()
+            
+            # Validate required fields
+            required_fields = ['name', 'initialAmount', 'currentAmount']
+            for field in required_fields:
+                if field not in data:
+                    return jsonify({"message": f"Missing required field: {field}"}), 400
+            
+            name = data['name'].strip()
+            initial_amount = float(data['initialAmount'])
+            current_amount = float(data['currentAmount'])
+            
+            # Validate values
+            if initial_amount < 0 or current_amount < 0:
+                return jsonify({"message": "Amounts must be non-negative"}), 400
+                
+            if len(name) < 1:
+                return jsonify({"message": "Supplier name cannot be empty"}), 400
+            
+            # Update supplier in database
+            result = update_supplier(supplier_id, name, initial_amount, current_amount)
+            
+            if result['success']:
+                # Get the updated supplier
+                supplier = get_supplier_by_id(supplier_id)
+                return jsonify({
+                    "message": result['message'],
+                    "supplier": supplier
+                }), 200
+            else:
+                return jsonify({"message": result['message']}), 400
+                
+        except ValueError:
+            return jsonify({"message": "Invalid number format for amounts"}), 400
+        except Exception as e:
+            return jsonify({"message": f"Server error: {str(e)}"}), 500
+    
+    elif request.method == 'DELETE':
+        try:
+            # Delete supplier from database
+            result = delete_supplier(supplier_id)
+            
+            if result['success']:
+                return jsonify({"message": result['message']}), 200
+            else:
+                return jsonify({"message": result['message']}), 404
+                
         except Exception as e:
             return jsonify({"message": f"Server error: {str(e)}"}), 500
 
