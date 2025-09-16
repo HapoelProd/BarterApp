@@ -2,11 +2,15 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
+from database import init_database, add_supplier, get_all_suppliers, get_supplier_by_id
 
 load_dotenv()
 
 app = Flask(__name__)
 CORS(app)
+
+# Initialize database on startup
+init_database()
 
 @app.route('/')
 def home():
@@ -23,18 +27,51 @@ def home():
 @app.route('/api/suppliers', methods=['GET', 'POST'])
 def suppliers():
     if request.method == 'GET':
-        return jsonify([
-            {"id": 1, "name": "Supplier A", "balance": 1500.00, "status": "active"},
-            {"id": 2, "name": "Supplier B", "balance": -750.50, "status": "active"},
-            {"id": 3, "name": "Supplier C", "balance": 0.00, "status": "pending"}
-        ])
+        try:
+            suppliers_list = get_all_suppliers()
+            return jsonify(suppliers_list)
+        except Exception as e:
+            return jsonify({"error": f"Failed to fetch suppliers: {str(e)}"}), 500
     
     elif request.method == 'POST':
-        data = request.get_json()
-        return jsonify({
-            "message": "Supplier created successfully",
-            "supplier": data
-        }), 201
+        try:
+            data = request.get_json()
+            
+            # Validate required fields
+            required_fields = ['name', 'price', 'initialAmount']
+            for field in required_fields:
+                if not data.get(field):
+                    return jsonify({"message": f"Missing required field: {field}"}), 400
+            
+            name = data['name'].strip()
+            price = float(data['price'])
+            initial_amount = float(data['initialAmount'])
+            current_amount = float(data.get('currentAmount', initial_amount))
+            
+            # Validate values
+            if price < 0 or initial_amount < 0 or current_amount < 0:
+                return jsonify({"message": "Price and amounts must be non-negative"}), 400
+                
+            if len(name) < 1:
+                return jsonify({"message": "Supplier name cannot be empty"}), 400
+            
+            # Add supplier to database
+            result = add_supplier(name, price, initial_amount, current_amount)
+            
+            if result['success']:
+                # Get the created supplier
+                supplier = get_supplier_by_id(result['id'])
+                return jsonify({
+                    "message": result['message'],
+                    "supplier": supplier
+                }), 201
+            else:
+                return jsonify({"message": result['message']}), 400
+                
+        except ValueError:
+            return jsonify({"message": "Invalid number format for price or amounts"}), 400
+        except Exception as e:
+            return jsonify({"message": f"Server error: {str(e)}"}), 500
 
 @app.route('/api/orders', methods=['GET', 'POST'])
 def orders():
