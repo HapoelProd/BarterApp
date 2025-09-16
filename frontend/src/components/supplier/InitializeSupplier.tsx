@@ -1,52 +1,125 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 interface Supplier {
   id: number;
   name: string;
-  balance: number;
-  status: string;
+  initial_amount: number;
+  current_amount: number;
 }
 
 const InitializeSupplier: React.FC = () => {
+  const [suppliers, setSuppliers] = useState<Supplier[]>([]);
   const [selectedSupplier, setSelectedSupplier] = useState('');
-  const [initializationType, setInitializationType] = useState('balance');
-  const [balanceAmount, setBalanceAmount] = useState('');
-  const [resetConfirmation, setResetConfirmation] = useState('');
-  const [showResetConfirmation, setShowResetConfirmation] = useState(false);
+  const [initializationData, setInitializationData] = useState({
+    initialAmount: '',
+    currentAmount: ''
+  });
+  const [exportHistory, setExportHistory] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState({ type: '', text: '' });
 
-  // Mock supplier data - TODO: Replace with API call
-  const suppliers: Supplier[] = [
-    { id: 1, name: 'Supplier A', balance: 1500.00, status: 'active' },
-    { id: 2, name: 'Supplier B', balance: -750.50, status: 'active' },
-    { id: 3, name: 'Supplier C', balance: 0.00, status: 'pending' }
-  ];
+  // Fetch suppliers on component mount
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
 
-  const handleSupplierSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedSupplier(e.target.value);
-    setShowResetConfirmation(false);
-    setResetConfirmation('');
-  };
+  // Default Current Amount to Initial Amount when Initial Amount changes
+  useEffect(() => {
+    if (initializationData.initialAmount && !initializationData.currentAmount) {
+      setInitializationData(prev => ({
+        ...prev,
+        currentAmount: prev.initialAmount
+      }));
+    }
+  }, [initializationData.initialAmount, initializationData.currentAmount]);
 
-  const handleInitializeBalance = () => {
-    const supplier = suppliers.find(s => s.id.toString() === selectedSupplier);
-    if (supplier && balanceAmount) {
-      console.log(`Initializing balance for ${supplier.name} to $${balanceAmount}`);
-      // TODO: API call to initialize supplier balance
-      setBalanceAmount('');
+  const fetchSuppliers = async () => {
+    try {
+      const response = await fetch('http://localhost:5000/api/suppliers');
+      if (response.ok) {
+        const data = await response.json();
+        // Sort suppliers A-Z by name
+        const sortedSuppliers = data.sort((a: Supplier, b: Supplier) => 
+          a.name.localeCompare(b.name)
+        );
+        setSuppliers(sortedSuppliers);
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Failed to load suppliers' });
     }
   };
 
-  const handleResetSupplier = () => {
-    setShowResetConfirmation(true);
+  const handleSupplierSelect = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    setSelectedSupplier(e.target.value);
+    setMessage({ type: '', text: '' });
+    // Reset form when selecting a new supplier
+    setInitializationData({ initialAmount: '', currentAmount: '' });
   };
 
-  const handleConfirmReset = () => {
-    const supplier = suppliers.find(s => s.id.toString() === selectedSupplier);
-    if (supplier && resetConfirmation === supplier.name) {
-      console.log(`Resetting all data for ${supplier.name}`);
-      // TODO: API call to reset supplier data
-      setResetConfirmation('');
-      setShowResetConfirmation(false);
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setInitializationData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleExportChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setExportHistory(e.target.checked);
+  };
+
+  const handleApply = async () => {
+    if (!selectedSupplier) return;
+    
+    setIsSubmitting(true);
+    setMessage({ type: '', text: '' });
+
+    try {
+      const finalCurrentAmount = initializationData.currentAmount || initializationData.initialAmount;
+      
+      const initData = {
+        initialAmount: parseFloat(initializationData.initialAmount) || 0,
+        currentAmount: parseFloat(finalCurrentAmount) || 0,
+        exportHistory: exportHistory
+      };
+
+      // Validate data
+      if (initData.initialAmount < 0 || initData.currentAmount < 0) {
+        setMessage({ type: 'error', text: 'Amounts must be non-negative' });
+        setIsSubmitting(false);
+        return;
+      }
+
+      if (initData.initialAmount === 0) {
+        setMessage({ type: 'error', text: 'Initial Amount is required and must be greater than 0' });
+        setIsSubmitting(false);
+        return;
+      }
+
+      const response = await fetch(`http://localhost:5000/api/suppliers/${selectedSupplier}/initialize`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(initData),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        setMessage({ type: 'success', text: result.message });
+        // Refresh suppliers list
+        await fetchSuppliers();
+        // Reset form
+        setInitializationData({ initialAmount: '', currentAmount: '' });
+        setExportHistory(false);
+      } else {
+        const error = await response.json();
+        setMessage({ type: 'error', text: error.message || 'Failed to initialize supplier' });
+      }
+    } catch (error) {
+      setMessage({ type: 'error', text: 'Network error. Please check if the backend server is running.' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -55,24 +128,38 @@ const InitializeSupplier: React.FC = () => {
   return (
     <div>
       <p style={{ color: '#ffffff', marginBottom: '20px' }}>
-        Initialize supplier settings including balance reset and data cleanup operations.
+        Initialize a supplier with new balance amounts and optionally export transaction history to orders.
       </p>
+
+      {message.text && (
+        <div style={{ 
+          padding: '12px', 
+          marginBottom: '20px',
+          borderRadius: '4px',
+          backgroundColor: message.type === 'success' ? 'rgba(0, 255, 0, 0.1)' : 'rgba(220, 38, 38, 0.1)',
+          border: `1px solid ${message.type === 'success' ? '#00ff00' : '#dc2626'}`,
+          color: message.type === 'success' ? '#00ff00' : '#dc2626'
+        }}>
+          {message.text}
+        </div>
+      )}
       
       <div style={{ maxWidth: '500px' }}>
         <div style={{ marginBottom: '20px' }}>
           <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
-            Select Supplier
+            Select Supplier to Initialize (A-Z)
           </label>
           <select
             value={selectedSupplier}
             onChange={handleSupplierSelect}
             className="input"
             style={{ width: '100%' }}
+            disabled={isSubmitting}
           >
             <option value="">-- Select a supplier --</option>
             {suppliers.map(supplier => (
               <option key={supplier.id} value={supplier.id}>
-                {supplier.name} (Balance: ${supplier.balance.toFixed(2)})
+                {supplier.name} (Initial: {supplier.initial_amount}₪, Current: {supplier.current_amount}₪)
               </option>
             ))}
           </select>
@@ -90,119 +177,109 @@ const InitializeSupplier: React.FC = () => {
               <h4 style={{ color: '#dc2626', margin: '0 0 12px 0' }}>Current Supplier Status</h4>
               <div style={{ color: '#ffffff' }}>
                 <p><strong>Name:</strong> {selectedSupplierData.name}</p>
-                <p><strong>Current Balance:</strong> ${selectedSupplierData.balance.toFixed(2)}</p>
-                <p><strong>Status:</strong> {selectedSupplierData.status}</p>
+                <p><strong>Current Initial Amount:</strong> {selectedSupplierData.initial_amount}₪</p>
+                <p><strong>Current Balance:</strong> {selectedSupplierData.current_amount}₪</p>
               </div>
             </div>
 
-            <div style={{ marginBottom: '20px' }}>
-              <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
-                Initialization Type
-              </label>
-              <select
-                value={initializationType}
-                onChange={(e) => setInitializationType(e.target.value)}
-                className="input"
-                style={{ width: '100%' }}
-              >
-                <option value="balance">Set New Balance</option>
-                <option value="reset">Reset All Data</option>
-              </select>
-            </div>
-
-            {initializationType === 'balance' && (
-              <div style={{ marginBottom: '20px' }}>
+            <div style={{ display: 'grid', gap: '16px', marginBottom: '20px' }}>
+              <div>
                 <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
-                  New Balance Amount ($)
+                  New Initial Amount (₪) *
                 </label>
                 <input
                   type="number"
-                  value={balanceAmount}
-                  onChange={(e) => setBalanceAmount(e.target.value)}
+                  name="initialAmount"
+                  value={initializationData.initialAmount}
+                  onChange={handleInputChange}
                   className="input"
+                  required
                   style={{ width: '100%' }}
-                  placeholder="Enter new balance amount"
+                  placeholder="Enter new initial amount"
                   step="0.01"
+                  min="0.01"
+                  disabled={isSubmitting}
                 />
-                <small style={{ color: '#ffffff', opacity: 0.8 }}>
-                  Current balance: ${selectedSupplierData.balance.toFixed(2)}
-                </small>
               </div>
-            )}
 
-            {initializationType === 'reset' && showResetConfirmation && (
-              <div style={{ marginBottom: '20px' }}>
-                <div className="error" style={{ marginBottom: '12px', fontSize: '16px' }}>
-                  ⚠️ WARNING: This will reset ALL supplier data including transaction history!
-                </div>
+              <div>
                 <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
-                  Type the supplier name "{selectedSupplierData.name}" to confirm reset:
+                  New Current Amount (₪)
                 </label>
                 <input
-                  type="text"
-                  value={resetConfirmation}
-                  onChange={(e) => setResetConfirmation(e.target.value)}
+                  type="number"
+                  name="currentAmount"
+                  value={initializationData.currentAmount}
+                  onChange={handleInputChange}
                   className="input"
                   style={{ width: '100%' }}
-                  placeholder={`Type "${selectedSupplierData.name}" to confirm`}
+                  placeholder={initializationData.initialAmount || "Will default to Initial Amount"}
+                  step="0.01"
+                  min="0"
+                  disabled={isSubmitting}
                 />
+                <small style={{ color: '#ffffff', opacity: 0.7, fontSize: '12px' }}>
+                  Leave empty to default to Initial Amount
+                </small>
               </div>
-            )}
+
+              <div style={{ 
+                padding: '12px', 
+                border: '1px solid #dc2626', 
+                borderRadius: '4px',
+                backgroundColor: 'rgba(220, 38, 38, 0.05)'
+              }}>
+                <label style={{ 
+                  color: '#ffffff', 
+                  display: 'flex', 
+                  alignItems: 'center', 
+                  cursor: 'pointer' 
+                }}>
+                  <input
+                    type="checkbox"
+                    checked={exportHistory}
+                    onChange={handleExportChange}
+                    disabled={isSubmitting}
+                    style={{ marginRight: '8px' }}
+                  />
+                  Export previous history to orders table
+                </label>
+                <small style={{ color: '#ffffff', opacity: 0.8, fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                  Check this to save current transaction history as an order before resetting
+                </small>
+              </div>
+            </div>
+
+            <div style={{ 
+              padding: '12px', 
+              border: '1px solid #dc2626', 
+              borderRadius: '4px',
+              marginBottom: '20px',
+              backgroundColor: 'rgba(220, 38, 38, 0.1)'
+            }}>
+              <div className="error" style={{ marginBottom: '8px', fontSize: '14px' }}>
+                ⚠️ WARNING: This will reset all supplier balances and clear transaction history!
+              </div>
+              <p style={{ color: '#ffffff', fontSize: '12px', margin: 0 }}>
+                This action will update the supplier's initial and current amounts, and clear all existing transaction history. 
+                {exportHistory && " The current history will be exported to the orders table before clearing."}
+              </p>
+            </div>
 
             <div style={{ display: 'flex', gap: '12px' }}>
-              {initializationType === 'balance' && (
-                <button 
-                  className="btn btn-primary"
-                  onClick={handleInitializeBalance}
-                  disabled={!balanceAmount}
-                  style={{ 
-                    backgroundColor: balanceAmount ? '#dc2626' : '#666666',
-                    borderColor: balanceAmount ? '#dc2626' : '#666666',
-                    cursor: balanceAmount ? 'pointer' : 'not-allowed'
-                  }}
-                >
-                  Set Balance
-                </button>
-              )}
-
-              {initializationType === 'reset' && !showResetConfirmation && (
-                <button 
-                  className="btn"
-                  onClick={handleResetSupplier}
-                  style={{ 
-                    backgroundColor: '#dc2626',
-                    borderColor: '#dc2626'
-                  }}
-                >
-                  Reset Supplier Data
-                </button>
-              )}
-
-              {initializationType === 'reset' && showResetConfirmation && (
-                <>
-                  <button 
-                    className="btn"
-                    onClick={handleConfirmReset}
-                    disabled={resetConfirmation !== selectedSupplierData.name}
-                    style={{ 
-                      backgroundColor: (resetConfirmation === selectedSupplierData.name) ? '#dc2626' : '#666666',
-                      borderColor: (resetConfirmation === selectedSupplierData.name) ? '#dc2626' : '#666666',
-                      cursor: (resetConfirmation === selectedSupplierData.name) ? 'pointer' : 'not-allowed'
-                    }}
-                  >
-                    Confirm Reset
-                  </button>
-                  <button 
-                    className="btn"
-                    onClick={() => {
-                      setShowResetConfirmation(false);
-                      setResetConfirmation('');
-                    }}
-                  >
-                    Cancel
-                  </button>
-                </>
-              )}
+              <button 
+                className="btn btn-primary"
+                onClick={handleApply}
+                disabled={!initializationData.initialAmount || isSubmitting}
+                style={{ 
+                  backgroundColor: (initializationData.initialAmount && !isSubmitting) ? '#dc2626' : '#666666',
+                  borderColor: (initializationData.initialAmount && !isSubmitting) ? '#dc2626' : '#666666',
+                  cursor: (initializationData.initialAmount && !isSubmitting) ? 'pointer' : 'not-allowed',
+                  opacity: isSubmitting ? 0.6 : 1
+                }}
+              >
+                {isSubmitting ? 'Initializing...' : 'Apply'}
+              </button>
             </div>
           </div>
         )}
