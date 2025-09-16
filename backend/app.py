@@ -38,25 +38,24 @@ def suppliers():
             data = request.get_json()
             
             # Validate required fields
-            required_fields = ['name', 'price', 'initialAmount']
+            required_fields = ['name', 'initialAmount']
             for field in required_fields:
                 if not data.get(field):
                     return jsonify({"message": f"Missing required field: {field}"}), 400
             
             name = data['name'].strip()
-            price = float(data['price'])
             initial_amount = float(data['initialAmount'])
             current_amount = float(data.get('currentAmount', initial_amount))
             
             # Validate values
-            if price < 0 or initial_amount < 0 or current_amount < 0:
-                return jsonify({"message": "Price and amounts must be non-negative"}), 400
+            if initial_amount < 0 or current_amount < 0:
+                return jsonify({"message": "Amounts must be non-negative"}), 400
                 
             if len(name) < 1:
                 return jsonify({"message": "Supplier name cannot be empty"}), 400
             
             # Add supplier to database
-            result = add_supplier(name, price, initial_amount, current_amount)
+            result = add_supplier(name, initial_amount, current_amount)
             
             if result['success']:
                 # Get the created supplier
@@ -69,7 +68,7 @@ def suppliers():
                 return jsonify({"message": result['message']}), 400
                 
         except ValueError:
-            return jsonify({"message": "Invalid number format for price or amounts"}), 400
+            return jsonify({"message": "Invalid number format for amounts"}), 400
         except Exception as e:
             return jsonify({"message": f"Server error: {str(e)}"}), 500
 

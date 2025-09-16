@@ -5,18 +5,22 @@ from datetime import datetime
 DATABASE_PATH = 'barter_management.db'
 
 def init_database():
-    """Initialize the database with required tables"""
+    """Initialize the database with required tables according to new specification"""
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     
-    # Create suppliers table
+    # Drop existing suppliers table if exists (for clean migration)
+    cursor.execute('DROP TABLE IF EXISTS suppliers')
+    cursor.execute('DROP TABLE IF EXISTS transactions')
+    
+    # Create suppliers table according to specification:
+    # Supplier_ID (PK), Supplier_Name (String), Initial_Amount(decimal), Current_Amount(decimal)
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS suppliers (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
-            price DECIMAL(10, 2) NOT NULL,
-            initial_amount DECIMAL(10, 2) NOT NULL,
-            current_amount DECIMAL(10, 2) NOT NULL,
+        CREATE TABLE suppliers (
+            Supplier_ID INTEGER PRIMARY KEY AUTOINCREMENT,
+            Supplier_Name TEXT NOT NULL UNIQUE,
+            Initial_Amount DECIMAL(10, 2) NOT NULL,
+            Current_Amount DECIMAL(10, 2) NOT NULL,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
@@ -24,30 +28,30 @@ def init_database():
     
     # Create transactions table for tracking changes
     cursor.execute('''
-        CREATE TABLE IF NOT EXISTS transactions (
+        CREATE TABLE transactions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             supplier_id INTEGER NOT NULL,
             transaction_type TEXT NOT NULL,
             amount DECIMAL(10, 2) NOT NULL,
             description TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
+            FOREIGN KEY (supplier_id) REFERENCES suppliers (Supplier_ID)
         )
     ''')
     
     conn.commit()
     conn.close()
 
-def add_supplier(name, price, initial_amount, current_amount):
+def add_supplier(name, initial_amount, current_amount):
     """Add a new supplier to the database"""
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
     
     try:
         cursor.execute('''
-            INSERT INTO suppliers (name, price, initial_amount, current_amount)
-            VALUES (?, ?, ?, ?)
-        ''', (name, price, initial_amount, current_amount))
+            INSERT INTO suppliers (Supplier_Name, Initial_Amount, Current_Amount)
+            VALUES (?, ?, ?)
+        ''', (name, initial_amount, current_amount))
         
         supplier_id = cursor.lastrowid
         
@@ -73,9 +77,9 @@ def get_all_suppliers():
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT id, name, price, initial_amount, current_amount, created_at, updated_at
+        SELECT Supplier_ID, Supplier_Name, Initial_Amount, Current_Amount, created_at, updated_at
         FROM suppliers
-        ORDER BY name
+        ORDER BY Supplier_Name
     ''')
     
     suppliers = []
@@ -83,11 +87,10 @@ def get_all_suppliers():
         suppliers.append({
             'id': row[0],
             'name': row[1],
-            'price': float(row[2]),
-            'initial_amount': float(row[3]),
-            'current_amount': float(row[4]),
-            'created_at': row[5],
-            'updated_at': row[6]
+            'initial_amount': float(row[2]),
+            'current_amount': float(row[3]),
+            'created_at': row[4],
+            'updated_at': row[5]
         })
     
     conn.close()
@@ -99,9 +102,9 @@ def get_supplier_by_id(supplier_id):
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT id, name, price, initial_amount, current_amount, created_at, updated_at
+        SELECT Supplier_ID, Supplier_Name, Initial_Amount, Current_Amount, created_at, updated_at
         FROM suppliers
-        WHERE id = ?
+        WHERE Supplier_ID = ?
     ''', (supplier_id,))
     
     row = cursor.fetchone()
@@ -111,11 +114,10 @@ def get_supplier_by_id(supplier_id):
         return {
             'id': row[0],
             'name': row[1],
-            'price': float(row[2]),
-            'initial_amount': float(row[3]),
-            'current_amount': float(row[4]),
-            'created_at': row[5],
-            'updated_at': row[6]
+            'initial_amount': float(row[2]),
+            'current_amount': float(row[3]),
+            'created_at': row[4],
+            'updated_at': row[5]
         }
     return None
 
@@ -126,7 +128,7 @@ def update_supplier_amount(supplier_id, new_amount, transaction_type='adjustment
     
     try:
         # Get current amount
-        cursor.execute('SELECT current_amount FROM suppliers WHERE id = ?', (supplier_id,))
+        cursor.execute('SELECT Current_Amount FROM suppliers WHERE Supplier_ID = ?', (supplier_id,))
         result = cursor.fetchone()
         if not result:
             return {'success': False, 'message': 'Supplier not found'}
@@ -137,8 +139,8 @@ def update_supplier_amount(supplier_id, new_amount, transaction_type='adjustment
         # Update supplier
         cursor.execute('''
             UPDATE suppliers 
-            SET current_amount = ?, updated_at = CURRENT_TIMESTAMP
-            WHERE id = ?
+            SET Current_Amount = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE Supplier_ID = ?
         ''', (new_amount, supplier_id))
         
         # Log transaction
@@ -158,4 +160,4 @@ def update_supplier_amount(supplier_id, new_amount, transaction_type='adjustment
 if __name__ == '__main__':
     # Initialize database when run directly
     init_database()
-    print("Database initialized successfully!")
+    print("Database initialized successfully with new schema!")

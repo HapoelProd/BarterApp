@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 const AddSupplier: React.FC = () => {
   const [supplierData, setSupplierData] = useState({
     name: '',
-    price: '',
     initialAmount: '',
     currentAmount: ''
   });
@@ -39,7 +38,6 @@ const AddSupplier: React.FC = () => {
       
       const supplierToSubmit = {
         name: supplierData.name,
-        price: parseFloat(supplierData.price) || 0,
         initialAmount: parseFloat(supplierData.initialAmount) || 0,
         currentAmount: parseFloat(finalCurrentAmount) || 0
       };
@@ -70,7 +68,6 @@ const AddSupplier: React.FC = () => {
   const handleReset = () => {
     setSupplierData({
       name: '',
-      price: '',
       initialAmount: '',
       currentAmount: ''
     });
@@ -80,7 +77,7 @@ const AddSupplier: React.FC = () => {
   return (
     <div>
       <p style={{ color: '#ffffff', marginBottom: '20px' }}>
-        Add a new supplier to the system with their pricing and initial amounts.
+        Add a new supplier to the system with their initial and current balance amounts.
       </p>
       
       {message.text && (
@@ -117,26 +114,7 @@ const AddSupplier: React.FC = () => {
 
           <div>
             <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
-              Price ($) *
-            </label>
-            <input
-              type="number"
-              name="price"
-              value={supplierData.price}
-              onChange={handleInputChange}
-              className="input"
-              required
-              style={{ width: '100%' }}
-              placeholder="0.00"
-              step="0.01"
-              min="0"
-              disabled={isSubmitting}
-            />
-          </div>
-
-          <div>
-            <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
-              Initial Amount ($) *
+              Initial Amount (₪) *
             </label>
             <input
               type="number"
@@ -155,7 +133,7 @@ const AddSupplier: React.FC = () => {
 
           <div>
             <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
-              Current Amount ($)
+              Current Amount (₪)
             </label>
             <input
               type="number"
