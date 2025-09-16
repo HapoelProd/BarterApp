@@ -28,8 +28,8 @@ const HomePage: React.FC<HomePageProps> = ({ onNavigate }) => {
   return (
     <div className="container">
       <div className="header">
-        <div className="logo-placeholder">
-          Organization Logo
+        <div className="logo-container">
+          <img src="/logo.jpeg" alt="Organization Logo" className="logo" />
         </div>
         <div className="intro">
           <h1>Barter Management System</h1>

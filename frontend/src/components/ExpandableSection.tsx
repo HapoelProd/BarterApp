@@ -18,45 +18,30 @@ const ExpandableSection: React.FC<ExpandableSectionProps> = ({
   };
 
   return (
-    <div style={{ 
-      border: '2px solid #dc2626', 
-      borderRadius: '8px', 
-      marginBottom: '16px' 
-    }}>
-      <div
-        onClick={toggleExpansion}
-        style={{
-          padding: '16px',
-          cursor: 'pointer',
+    <div className="expandable-section">
+      <div className="card" onClick={toggleExpansion}>
+        <div style={{
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
-          backgroundColor: 'transparent',
-          borderBottom: isExpanded ? '1px solid #dc2626' : 'none'
-        }}
-      >
-        <h3 style={{ 
-          color: '#dc2626', 
-          margin: 0, 
-          fontSize: '1.2rem' 
         }}>
-          {title}
-        </h3>
-        <div style={{
-          color: '#dc2626',
-          fontSize: '1.5rem',
-          fontWeight: 'bold',
-          transition: 'transform 0.2s ease'
-        }}>
-          {isExpanded ? '▲' : '▼'}
+          <h3 style={{ margin: 0 }}>
+            {title}
+          </h3>
+          <div style={{
+            color: '#dc2626',
+            fontSize: '1.5rem',
+            fontWeight: 'bold',
+            transition: 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+            transform: isExpanded ? 'rotate(180deg)' : 'rotate(0deg)'
+          }}>
+            ▼
+          </div>
         </div>
       </div>
       
       {isExpanded && (
-        <div style={{ 
-          padding: '24px',
-          backgroundColor: 'transparent'
-        }}>
+        <div className="expandable-content">
           {children}
         </div>
       )}

@@ -14,22 +14,20 @@ const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
   return (
     <div className="container">
       <div className="header">
-        <div className="logo-placeholder">
-          Organization Logo
+        <div className="logo-container">
+          <img src="/logo.jpeg" alt="Organization Logo" className="logo" />
         </div>
-        <h1 style={{ color: '#dc2626', fontSize: '2rem', marginBottom: '16px' }}>
-          Admin Actions
-        </h1>
-        <p style={{ color: '#ffffff', marginBottom: '32px' }}>
-          Manage supplier agreements, barter balances, and order approvals
-        </p>
+        <div className="intro">
+          <h1>Admin Actions</h1>
+          <p>
+            Manage supplier agreements, barter balances, and order approvals
+          </p>
+        </div>
       </div>
 
       <div style={{ maxWidth: '800px', margin: '0 auto' }}>
         <div style={{ marginBottom: '32px' }}>
-          <h2 style={{ color: '#dc2626', marginBottom: '20px', fontSize: '1.5rem' }}>
-            Supplier Management
-          </h2>
+          <h2>Supplier Management</h2>
           
           <ExpandableSection title="Add Supplier">
             <AddSupplier />
@@ -49,18 +47,16 @@ const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
         </div>
 
         <div style={{ marginBottom: '32px' }}>
-          <h2 style={{ color: '#dc2626', marginBottom: '20px', fontSize: '1.5rem' }}>
-            Additional Admin Functions
-          </h2>
+          <h2>Additional Admin Functions</h2>
           
           <ExpandableSection title="Add Order Category">
             <AddOrderCategory />
           </ExpandableSection>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '20px' }}>
-            <div style={{ padding: '24px', border: '2px solid #dc2626', borderRadius: '8px' }}>
-              <h3 style={{ color: '#dc2626', marginBottom: '12px' }}>Order Approvals</h3>
-              <p style={{ color: '#ffffff', marginBottom: '16px' }}>
+          <div style={{ marginTop: '20px' }}>
+            <div className="card">
+              <h3>Order Approvals</h3>
+              <p style={{ color: '#475569', marginBottom: '16px' }}>
                 Review and approve pending barter orders and transactions
               </p>
               <button className="btn">Pending Orders</button>
