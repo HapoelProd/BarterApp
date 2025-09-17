@@ -46,7 +46,6 @@ def init_database():
             Order_ID TEXT PRIMARY KEY,
             Supplier_ID INTEGER NOT NULL,
             Order_Title TEXT NOT NULL,
-            Order_Category TEXT CHECK(Order_Category IN ('Office Supplies', 'Drinks', 'Sports', 'Tech', 'Other')),
             Order_Amount DECIMAL(10, 2) NOT NULL,
             Order_Date DATETIME DEFAULT CURRENT_TIMESTAMP,
             Order_By TEXT NOT NULL,
@@ -327,7 +326,7 @@ def get_orders_by_supplier(supplier_id):
     cursor = conn.cursor()
     
     cursor.execute('''
-        SELECT Order_ID, Order_Title, Order_Category, Order_Amount, 
+        SELECT Order_ID, Order_Title, Order_Amount, 
                Order_Date, Order_By, Notes, Order_Status, Handler, created_at
         FROM orders
         WHERE Supplier_ID = ?
@@ -339,20 +338,19 @@ def get_orders_by_supplier(supplier_id):
         orders.append({
             'order_id': row[0],
             'title': row[1],
-            'category': row[2],
-            'amount': float(row[3]),
-            'order_date': row[4],
-            'ordered_by': row[5],
-            'notes': row[6],
-            'status': row[7],
-            'handler': row[8],
-            'created_at': row[9]
+            'amount': float(row[2]),
+            'order_date': row[3],
+            'ordered_by': row[4],
+            'notes': row[5],
+            'status': row[6],
+            'handler': row[7],
+            'created_at': row[8]
         })
     
     conn.close()
     return orders
 
-def add_order(order_id, supplier_id, order_title, order_category, order_amount, order_date, ordered_by, notes=None):
+def add_order(order_id, supplier_id, order_title, order_amount, order_date, ordered_by, notes=None):
     """Add a new order to the database"""
     conn = sqlite3.connect(DATABASE_PATH)
     cursor = conn.cursor()
@@ -366,17 +364,17 @@ def add_order(order_id, supplier_id, order_title, order_category, order_amount, 
         # Insert new order
         cursor.execute('''
             INSERT INTO orders (
-                Order_ID, Supplier_ID, Order_Title, Order_Category, 
+                Order_ID, Supplier_ID, Order_Title, 
                 Order_Amount, Order_Date, Order_By, Notes, Order_Status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        ''', (order_id, supplier_id, order_title, order_category, 
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (order_id, supplier_id, order_title, 
               order_amount, order_date, ordered_by, notes, 'Pending'))
         
         conn.commit()
         
         # Get the created order
         cursor.execute('''
-            SELECT Order_ID, Supplier_ID, Order_Title, Order_Category, 
+            SELECT Order_ID, Supplier_ID, Order_Title, 
                    Order_Amount, Order_Date, Order_By, Notes, Order_Status, 
                    Handler, created_at
             FROM orders
@@ -389,14 +387,13 @@ def add_order(order_id, supplier_id, order_title, order_category, order_amount, 
                 'order_id': row[0],
                 'supplier_id': row[1],
                 'title': row[2],
-                'category': row[3],
-                'amount': float(row[4]),
-                'order_date': row[5],
-                'ordered_by': row[6],
-                'notes': row[7],
-                'status': row[8],
-                'handler': row[9],
-                'created_at': row[10]
+                'amount': float(row[3]),
+                'order_date': row[4],
+                'ordered_by': row[5],
+                'notes': row[6],
+                'status': row[7],
+                'handler': row[8],
+                'created_at': row[9]
             }
             
             return {
@@ -419,7 +416,7 @@ def get_all_orders():
     
     cursor.execute('''
         SELECT o.Order_ID, o.Supplier_ID, s.Supplier_Name, o.Order_Title, 
-               o.Order_Category, o.Order_Amount, o.Order_Date, o.Order_By, 
+               o.Order_Amount, o.Order_Date, o.Order_By, 
                o.Notes, o.Order_Status, o.Handler, o.created_at
         FROM orders o
         LEFT JOIN suppliers s ON o.Supplier_ID = s.Supplier_ID
@@ -433,14 +430,13 @@ def get_all_orders():
             'supplier_id': row[1],
             'supplier_name': row[2] or f'Unknown Supplier (ID: {row[1]})',
             'title': row[3],
-            'category': row[4],
-            'amount': float(row[5]),
-            'order_date': row[6],
-            'ordered_by': row[7],
-            'notes': row[8],
-            'status': row[9],
-            'handler': row[10],
-            'created_at': row[11]
+            'amount': float(row[4]),
+            'order_date': row[5],
+            'ordered_by': row[6],
+            'notes': row[7],
+            'status': row[8],
+            'handler': row[9],
+            'created_at': row[10]
         })
     
     conn.close()
@@ -495,7 +491,7 @@ def update_order_status(order_id, new_status, handler_name):
         # Get updated order details
         cursor.execute('''
             SELECT o.Order_ID, o.Supplier_ID, s.Supplier_Name, o.Order_Title, 
-                   o.Order_Category, o.Order_Amount, o.Order_Date, o.Order_By, 
+                   o.Order_Amount, o.Order_Date, o.Order_By, 
                    o.Notes, o.Order_Status, o.Handler, o.created_at
             FROM orders o
             LEFT JOIN suppliers s ON o.Supplier_ID = s.Supplier_ID
@@ -509,14 +505,13 @@ def update_order_status(order_id, new_status, handler_name):
                 'supplier_id': row[1],
                 'supplier_name': row[2] or f'Unknown Supplier (ID: {row[1]})',
                 'title': row[3],
-                'category': row[4],
-                'amount': float(row[5]),
-                'order_date': row[6],
-                'ordered_by': row[7],
-                'notes': row[8],
-                'status': row[9],
-                'handler': row[10],
-                'created_at': row[11]
+                'amount': float(row[4]),
+                'order_date': row[5],
+                'ordered_by': row[6],
+                'notes': row[7],
+                'status': row[8],
+                'handler': row[9],
+                'created_at': row[10]
             }
             
             return {

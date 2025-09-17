@@ -4,7 +4,6 @@ import AddSupplier from './supplier/AddSupplier';
 import RemoveSupplier from './supplier/RemoveSupplier';
 import EditSupplier from './supplier/EditSupplier';
 import InitializeSupplier from './supplier/InitializeSupplier';
-import AddOrderCategory from './admin/AddOrderCategory';
 import OrderApprovals from './admin/OrderApprovals';
 
 interface AdminPageProps {
@@ -48,11 +47,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
         </div>
 
         <div style={{ marginBottom: '32px' }}>
-          <h2>Additional Admin Functions</h2>
-          
-          <ExpandableSection title="Add Order Category">
-            <AddOrderCategory />
-          </ExpandableSection>
+          <h2>Order Management</h2>
           
           <ExpandableSection title="Order Approvals">
             <OrderApprovals />

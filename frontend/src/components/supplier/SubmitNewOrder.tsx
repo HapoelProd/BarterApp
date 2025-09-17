@@ -18,7 +18,6 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
 }) => {
   const [orderData, setOrderData] = useState({
     orderTitle: '',
-    orderCategory: '',
     amount: '',
     orderDate: new Date().toISOString().split('T')[0], // Today's date
     orderedBy: '',
@@ -27,14 +26,6 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
-  // Order categories - matching the ones from AddOrderCategory
-  const orderCategories = [
-    'Office Supplies',
-    'Drinks',
-    'Sports',
-    'Tech',
-    'Other'
-  ];
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -62,11 +53,6 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
         return;
       }
 
-      if (!orderData.orderCategory) {
-        setMessage({ type: 'error', text: 'Order Category is required' });
-        setIsSubmitting(false);
-        return;
-      }
 
       if (!orderData.amount || parseFloat(orderData.amount) <= 0) {
         setMessage({ type: 'error', text: 'Valid amount is required' });
@@ -94,7 +80,6 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
         orderId: orderId,
         supplierId: selectedSupplier.id,
         orderTitle: orderData.orderTitle.trim(),
-        orderCategory: orderData.orderCategory,
         orderAmount: parseFloat(orderData.amount),
         orderDate: orderData.orderDate,
         orderedBy: orderData.orderedBy.trim(),
@@ -124,7 +109,6 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
       // Reset form
       setOrderData({
         orderTitle: '',
-        orderCategory: '',
         amount: '',
         orderDate: new Date().toISOString().split('T')[0],
         orderedBy: '',
@@ -145,7 +129,6 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
   const handleReset = () => {
     setOrderData({
       orderTitle: '',
-      orderCategory: '',
       amount: '',
       orderDate: new Date().toISOString().split('T')[0],
       orderedBy: '',
@@ -207,49 +190,24 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
             />
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
-            {/* Order Category */}
-            <div>
-              <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
-                Order Category *
-              </label>
-              <select
-                name="orderCategory"
-                value={orderData.orderCategory}
-                onChange={handleInputChange}
-                className="input"
-                required
-                style={{ width: '100%' }}
-                disabled={isSubmitting}
-              >
-                <option value="">-- Select Category --</option>
-                {orderCategories.map(category => (
-                  <option key={category} value={category}>
-                    {category}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Amount */}
-            <div>
-              <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
-                Amount (₪) *
-              </label>
-              <input
-                type="number"
-                name="amount"
-                value={orderData.amount}
-                onChange={handleInputChange}
-                className="input"
-                required
-                style={{ width: '100%' }}
-                placeholder="0.00"
-                step="0.01"
-                min="0.01"
-                disabled={isSubmitting}
-              />
-            </div>
+          {/* Amount */}
+          <div>
+            <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
+              Amount (₪) *
+            </label>
+            <input
+              type="number"
+              name="amount"
+              value={orderData.amount}
+              onChange={handleInputChange}
+              className="input"
+              required
+              style={{ width: '100%' }}
+              placeholder="0.00"
+              step="0.01"
+              min="0.01"
+              disabled={isSubmitting}
+            />
           </div>
 
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>

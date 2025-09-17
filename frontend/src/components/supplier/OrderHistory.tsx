@@ -4,7 +4,6 @@ interface Order {
   order_id: string;
   supplier_id: number;
   title: string;
-  category: string;
   amount: number;
   order_date: string;
   ordered_by: string;
@@ -153,7 +152,6 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ selectedSupplier }) => {
               <tr style={{ backgroundColor: '#f8fafc' }}>
                 <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0', color: '#374151', fontWeight: '600' }}>Order ID</th>
                 <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0', color: '#374151', fontWeight: '600' }}>Order Title</th>
-                <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0', color: '#374151', fontWeight: '600' }}>Category</th>
                 <th style={{ padding: '12px', textAlign: 'right', borderBottom: '2px solid #e2e8f0', color: '#374151', fontWeight: '600' }}>Amount</th>
                 <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0', color: '#374151', fontWeight: '600' }}>Order Date</th>
                 <th style={{ padding: '12px', textAlign: 'left', borderBottom: '2px solid #e2e8f0', color: '#374151', fontWeight: '600' }}>Ordered By</th>
@@ -176,9 +174,6 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ selectedSupplier }) => {
                   </td>
                   <td style={{ padding: '12px', color: '#1e293b', fontSize: '14px', fontWeight: '500' }}>
                     {order.title}
-                  </td>
-                  <td style={{ padding: '12px', color: '#6b7280', fontSize: '14px' }}>
-                    {order.category}
                   </td>
                   <td style={{ padding: '12px', color: '#dc2626', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>
                     {order.amount.toFixed(2)}₪

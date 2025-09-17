@@ -4,7 +4,6 @@ interface Order {
   order_id: string;
   supplier_id: number;
   title: string;
-  category: string;
   amount: number;
   order_date: string;
   ordered_by: string;
@@ -59,7 +58,6 @@ const OrderApprovals: React.FC = () => {
             order_id: order.order_id,
             supplier_id: order.supplier_id,
             title: order.title,
-            category: order.category,
             amount: order.amount,
             order_date: order.order_date,
             ordered_by: order.ordered_by,
@@ -235,10 +233,6 @@ const OrderApprovals: React.FC = () => {
                   <div>
                     <strong style={{ color: '#374151' }}>Supplier:</strong>
                     <div style={{ color: '#6b7280', fontSize: '14px' }}>{order.supplier_name}</div>
-                  </div>
-                  <div>
-                    <strong style={{ color: '#374151' }}>Category:</strong>
-                    <div style={{ color: '#6b7280', fontSize: '14px' }}>{order.category}</div>
                   </div>
                   <div>
                     <strong style={{ color: '#374151' }}>Amount:</strong>

@@ -140,7 +140,7 @@ def orders():
             data = request.get_json()
             
             # Validate required fields
-            required_fields = ['orderId', 'supplierId', 'orderTitle', 'orderCategory', 'orderAmount', 'orderDate', 'orderedBy']
+            required_fields = ['orderId', 'supplierId', 'orderTitle', 'orderAmount', 'orderDate', 'orderedBy']
             for field in required_fields:
                 if not data.get(field):
                     return jsonify({"message": f"Missing required field: {field}"}), 400
@@ -148,7 +148,6 @@ def orders():
             order_id = data['orderId']
             supplier_id = int(data['supplierId'])
             order_title = (data['orderTitle'] or '').strip()
-            order_category = data['orderCategory']
             order_amount = float(data['orderAmount'])
             order_date = data['orderDate']
             ordered_by = (data['orderedBy'] or '').strip()
@@ -164,13 +163,8 @@ def orders():
             if len(ordered_by) < 1:
                 return jsonify({"message": "Ordered by cannot be empty"}), 400
             
-            # Validate order category
-            valid_categories = ['Office Supplies', 'Drinks', 'Sports', 'Tech', 'Other']
-            if order_category not in valid_categories:
-                return jsonify({"message": "Invalid order category"}), 400
-            
             # Add order to database
-            result = add_order(order_id, supplier_id, order_title, order_category, order_amount, order_date, ordered_by, notes)
+            result = add_order(order_id, supplier_id, order_title, order_amount, order_date, ordered_by, notes)
             
             return jsonify({
                 "message": result['message'],
@@ -226,17 +220,6 @@ def reject_order(order_id):
     except Exception as e:
         return jsonify({"message": f"Server error: {str(e)}"}), 500
 
-@app.route('/api/balances/<int:supplier_id>')
-def get_balance(supplier_id):
-    return jsonify({
-        "supplier_id": supplier_id,
-        "balance": 1500.00,
-        "transactions": [
-            {"date": "2024-01-15", "amount": 500.00, "type": "credit", "description": "Order payment"},
-            {"date": "2024-01-14", "amount": -250.00, "type": "debit", "description": "Service charge"},
-            {"date": "2024-01-13", "amount": 1250.00, "type": "credit", "description": "Initial deposit"}
-        ]
-    })
 
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
