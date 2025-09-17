@@ -26,7 +26,7 @@ const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
         </div>
       </div>
 
-      <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+      <div className="admin-container">
         <div style={{ marginBottom: '32px' }}>
           <h2>Supplier Management</h2>
           

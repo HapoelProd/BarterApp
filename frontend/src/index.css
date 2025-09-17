@@ -377,6 +377,57 @@ textarea.input {
   max-width: 100%;
 }
 
+/* Force consistent width for form containers within expandable sections */
+.expandable-content div[style*="maxWidth: '500px'"],
+.expandable-content div[style*="max-width: 500px"] {
+  width: 100% !important;
+  max-width: 100% !important;
+}
+
+/* Prevent any inline styles from causing width expansion */
+.expandable-content > div {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Fix grid layouts that might cause expansion */
+.expandable-content div[style*="gridTemplateColumns"] {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.expandable-content div[style*="display: grid"] {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+/* Admin page specific width control */
+.admin-container {
+  width: 800px;
+  max-width: 100%;
+  margin: 0 auto;
+  min-width: 0;
+}
+
+/* Ensure expandable sections within admin container stay within bounds */
+.admin-container .expandable-section {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.admin-container .expandable-section .card {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.admin-container .expandable-content {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+}
+
 @keyframes expandIn {
   from {
     opacity: 0;
