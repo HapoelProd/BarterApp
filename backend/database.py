@@ -352,6 +352,100 @@ def get_orders_by_supplier(supplier_id):
     conn.close()
     return orders
 
+def add_order(order_id, supplier_id, order_title, order_category, order_amount, order_date, ordered_by, notes=None):
+    """Add a new order to the database"""
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    
+    try:
+        # Check if order_id already exists
+        cursor.execute('SELECT Order_ID FROM orders WHERE Order_ID = ?', (order_id,))
+        if cursor.fetchone():
+            return {'success': False, 'message': 'Order ID already exists'}
+        
+        # Insert new order
+        cursor.execute('''
+            INSERT INTO orders (
+                Order_ID, Supplier_ID, Order_Title, Order_Category, 
+                Order_Amount, Order_Date, Order_By, Notes, Order_Status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (order_id, supplier_id, order_title, order_category, 
+              order_amount, order_date, ordered_by, notes, 'Pending'))
+        
+        conn.commit()
+        
+        # Get the created order
+        cursor.execute('''
+            SELECT Order_ID, Supplier_ID, Order_Title, Order_Category, 
+                   Order_Amount, Order_Date, Order_By, Notes, Order_Status, 
+                   Handler, created_at
+            FROM orders
+            WHERE Order_ID = ?
+        ''', (order_id,))
+        
+        row = cursor.fetchone()
+        if row:
+            order = {
+                'order_id': row[0],
+                'supplier_id': row[1],
+                'title': row[2],
+                'category': row[3],
+                'amount': float(row[4]),
+                'order_date': row[5],
+                'ordered_by': row[6],
+                'notes': row[7],
+                'status': row[8],
+                'handler': row[9],
+                'created_at': row[10]
+            }
+            
+            return {
+                'success': True, 
+                'message': 'Order created successfully', 
+                'order': order
+            }
+        else:
+            return {'success': False, 'message': 'Failed to retrieve created order'}
+    
+    except Exception as e:
+        return {'success': False, 'message': f'Database error: {str(e)}'}
+    finally:
+        conn.close()
+
+def get_all_orders():
+    """Get all orders from the database with supplier information"""
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    
+    cursor.execute('''
+        SELECT o.Order_ID, o.Supplier_ID, s.Supplier_Name, o.Order_Title, 
+               o.Order_Category, o.Order_Amount, o.Order_Date, o.Order_By, 
+               o.Notes, o.Order_Status, o.Handler, o.created_at
+        FROM orders o
+        LEFT JOIN suppliers s ON o.Supplier_ID = s.Supplier_ID
+        ORDER BY o.created_at DESC
+    ''')
+    
+    orders = []
+    for row in cursor.fetchall():
+        orders.append({
+            'order_id': row[0],
+            'supplier_id': row[1],
+            'supplier_name': row[2] or f'Unknown Supplier (ID: {row[1]})',
+            'title': row[3],
+            'category': row[4],
+            'amount': float(row[5]),
+            'order_date': row[6],
+            'ordered_by': row[7],
+            'notes': row[8],
+            'status': row[9],
+            'handler': row[10],
+            'created_at': row[11]
+        })
+    
+    conn.close()
+    return orders
+
 if __name__ == '__main__':
     # Initialize database when run directly
     init_database()

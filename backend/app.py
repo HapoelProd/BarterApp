@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
-from database import init_database, add_supplier, get_all_suppliers, get_supplier_by_id, update_supplier, delete_supplier, initialize_supplier
+from database import init_database, add_supplier, get_all_suppliers, get_supplier_by_id, update_supplier, delete_supplier, initialize_supplier, add_order, get_all_orders
 
 load_dotenv()
 
@@ -129,18 +129,58 @@ def supplier_operations(supplier_id):
 @app.route('/api/orders', methods=['GET', 'POST'])
 def orders():
     if request.method == 'GET':
-        return jsonify([
-            {"id": 1, "supplier_id": 1, "amount": 500.00, "status": "pending", "date": "2024-01-15"},
-            {"id": 2, "supplier_id": 2, "amount": 250.00, "status": "approved", "date": "2024-01-14"},
-            {"id": 3, "supplier_id": 1, "amount": 1000.00, "status": "completed", "date": "2024-01-13"}
-        ])
+        try:
+            orders_list = get_all_orders()
+            return jsonify(orders_list)
+        except Exception as e:
+            return jsonify({"error": f"Failed to fetch orders: {str(e)}"}), 500
     
     elif request.method == 'POST':
-        data = request.get_json()
-        return jsonify({
-            "message": "Order created successfully",
-            "order": data
-        }), 201
+        try:
+            data = request.get_json()
+            
+            # Validate required fields
+            required_fields = ['orderId', 'supplierId', 'orderTitle', 'orderCategory', 'orderAmount', 'orderDate', 'orderedBy']
+            for field in required_fields:
+                if not data.get(field):
+                    return jsonify({"message": f"Missing required field: {field}"}), 400
+            
+            order_id = data['orderId']
+            supplier_id = int(data['supplierId'])
+            order_title = (data['orderTitle'] or '').strip()
+            order_category = data['orderCategory']
+            order_amount = float(data['orderAmount'])
+            order_date = data['orderDate']
+            ordered_by = (data['orderedBy'] or '').strip()
+            notes = (data.get('notes') or '').strip() or None
+            
+            # Validate values
+            if order_amount <= 0:
+                return jsonify({"message": "Order amount must be greater than 0"}), 400
+                
+            if len(order_title) < 1:
+                return jsonify({"message": "Order title cannot be empty"}), 400
+                
+            if len(ordered_by) < 1:
+                return jsonify({"message": "Ordered by cannot be empty"}), 400
+            
+            # Validate order category
+            valid_categories = ['Office Supplies', 'Drinks', 'Sports', 'Tech', 'Other']
+            if order_category not in valid_categories:
+                return jsonify({"message": "Invalid order category"}), 400
+            
+            # Add order to database
+            result = add_order(order_id, supplier_id, order_title, order_category, order_amount, order_date, ordered_by, notes)
+            
+            return jsonify({
+                "message": result['message'],
+                "order": result['order']
+            }), 201
+                
+        except ValueError:
+            return jsonify({"message": "Invalid number format for supplier ID or amount"}), 400
+        except Exception as e:
+            return jsonify({"message": f"Server error: {str(e)}"}), 500
 
 @app.route('/api/balances/<int:supplier_id>')
 def get_balance(supplier_id):

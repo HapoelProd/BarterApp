@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import SupplierSidebar from './supplier/SupplierSidebar';
+import SubmitNewOrder from './supplier/SubmitNewOrder';
 
 interface Supplier {
   id: number;
@@ -91,31 +92,16 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onNavigate }) => {
                   </div>
                 </div>
 
-                {/* Action Cards for Selected Supplier */}
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-                  <div className="card">
-                    <h3>Submit New Order</h3>
-                    <p style={{ color: '#475569', marginBottom: '16px' }}>
-                      Create a new barter order request for {selectedSupplier.name}
-                    </p>
-                    <button className="btn btn-primary">New Order for {selectedSupplier.name}</button>
-                  </div>
+                {/* Submit New Order Form */}
+                <SubmitNewOrder selectedSupplier={selectedSupplier} />
 
-                  <div className="card">
-                    <h3>View Transaction History</h3>
-                    <p style={{ color: '#475569', marginBottom: '16px' }}>
-                      Check transaction history and balance changes for {selectedSupplier.name}
-                    </p>
-                    <button className="btn">View {selectedSupplier.name} History</button>
-                  </div>
-
-                  <div className="card">
-                    <h3>Order History</h3>
-                    <p style={{ color: '#475569', marginBottom: '16px' }}>
-                      Review past orders with {selectedSupplier.name} and their current status
-                    </p>
-                    <button className="btn">View Order History</button>
-                  </div>
+                {/* Order History Card */}
+                <div className="card" style={{ marginTop: '24px' }}>
+                  <h3>Order History</h3>
+                  <p style={{ color: '#475569', marginBottom: '16px' }}>
+                    Review past orders with {selectedSupplier.name} and their current status
+                  </p>
+                  <button className="btn">View Order History</button>
                 </div>
               </div>
             ) : (
