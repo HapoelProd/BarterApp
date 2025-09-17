@@ -428,6 +428,38 @@ textarea.input {
   overflow-x: auto;
 }
 
+/* Supplier page specific width control */
+.supplier-main-content {
+  width: calc(100vw - 300px);
+  min-width: 0;
+  overflow: hidden;
+}
+
+.supplier-container {
+  width: 800px;
+  max-width: 100%;
+  margin: 0 auto;
+  min-width: 0;
+  overflow: hidden;
+}
+
+/* Ensure all content within supplier container stays within bounds */
+.supplier-container * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.supplier-container .card {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.supplier-container div[style*="display: grid"] {
+  max-width: 100%;
+  overflow: hidden;
+}
+
 @keyframes expandIn {
   from {
     opacity: 0;

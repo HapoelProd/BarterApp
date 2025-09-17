@@ -28,13 +28,18 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onNavigate }) => {
       />
 
       {/* Main Content */}
-      <div style={{ 
+      <div className="supplier-main-content" style={{ 
         marginLeft: '300px', 
-        flex: 1, 
         minHeight: '100vh',
         backgroundColor: '#f8fafc'
       }}>
-        <div className="container" style={{ maxWidth: 'none', padding: '20px 40px' }}>
+        <div className="container" style={{ 
+          maxWidth: 'none', 
+          padding: '20px 40px',
+          width: '100%',
+          minWidth: 0,
+          overflow: 'hidden'
+        }}>
           <div className="header">
             <div className="logo-container">
               <img src="/logo.jpeg" alt="Organization Logo" className="logo" />
@@ -47,7 +52,7 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onNavigate }) => {
             </div>
           </div>
 
-          <div style={{ maxWidth: '800px', margin: '0 auto' }}>
+          <div className="supplier-container">
             {selectedSupplier ? (
               /* Selected Supplier View */
               <div>
