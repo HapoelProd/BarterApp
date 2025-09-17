@@ -102,23 +102,31 @@ const OrderApprovals: React.FC = () => {
     setOrderErrors(prev => ({ ...prev, [orderId]: '' }));
 
     try {
-      // TODO: Implement actual API call
-      console.log('Approving order:', orderId, 'by:', adminName);
-      
-      // Update local state
-      setOrders(prev => prev.map(order => 
-        order.order_id === orderId 
-          ? { ...order, status: 'Approved', handler: adminName }
-          : order
-      ));
-      
-      // Clear admin name for this order
-      setAdminNames(prev => ({ ...prev, [orderId]: '' }));
-      
-      setMessage({ type: 'success', text: `Order ${orderId} approved successfully by ${adminName}!` });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/approve`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ handler_name: adminName }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Remove the approved order from the list (since we only show pending)
+        setOrders(prev => prev.filter(order => order.order_id !== orderId));
+        
+        // Clear admin name for this order
+        setAdminNames(prev => ({ ...prev, [orderId]: '' }));
+        
+        setMessage({ type: 'success', text: result.message });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      } else {
+        const error = await response.json();
+        setOrderErrors(prev => ({ ...prev, [orderId]: error.message || 'Failed to approve order' }));
+      }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to approve order' });
+      setOrderErrors(prev => ({ ...prev, [orderId]: 'Network error. Please check if the backend server is running.' }));
     }
   };
 
@@ -133,23 +141,31 @@ const OrderApprovals: React.FC = () => {
     setOrderErrors(prev => ({ ...prev, [orderId]: '' }));
 
     try {
-      // TODO: Implement actual API call
-      console.log('Rejecting order:', orderId, 'by:', adminName);
-      
-      // Update local state
-      setOrders(prev => prev.map(order => 
-        order.order_id === orderId 
-          ? { ...order, status: 'Rejected', handler: adminName }
-          : order
-      ));
-      
-      // Clear admin name for this order
-      setAdminNames(prev => ({ ...prev, [orderId]: '' }));
-      
-      setMessage({ type: 'success', text: `Order ${orderId} rejected successfully by ${adminName}!` });
-      setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/reject`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ handler_name: adminName }),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        
+        // Remove the rejected order from the list (since we only show pending)
+        setOrders(prev => prev.filter(order => order.order_id !== orderId));
+        
+        // Clear admin name for this order
+        setAdminNames(prev => ({ ...prev, [orderId]: '' }));
+        
+        setMessage({ type: 'success', text: result.message });
+        setTimeout(() => setMessage({ type: '', text: '' }), 3000);
+      } else {
+        const error = await response.json();
+        setOrderErrors(prev => ({ ...prev, [orderId]: error.message || 'Failed to reject order' }));
+      }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to reject order' });
+      setOrderErrors(prev => ({ ...prev, [orderId]: 'Network error. Please check if the backend server is running.' }));
     }
   };
 

@@ -55,6 +55,11 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ selectedSupplier }) => {
 
   useEffect(() => {
     fetchOrders();
+    
+    // Set up polling to refresh data every 5 seconds to catch real-time changes
+    const interval = setInterval(fetchOrders, 5000);
+    
+    return () => clearInterval(interval);
   }, [fetchOrders]);
 
   useEffect(() => {

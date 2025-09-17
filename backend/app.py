@@ -2,7 +2,7 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
-from database import init_database, add_supplier, get_all_suppliers, get_supplier_by_id, update_supplier, delete_supplier, initialize_supplier, add_order, get_all_orders
+from database import init_database, add_supplier, get_all_suppliers, get_supplier_by_id, update_supplier, delete_supplier, initialize_supplier, add_order, get_all_orders, update_order_status
 
 load_dotenv()
 
@@ -181,6 +181,50 @@ def orders():
             return jsonify({"message": "Invalid number format for supplier ID or amount"}), 400
         except Exception as e:
             return jsonify({"message": f"Server error: {str(e)}"}), 500
+
+@app.route('/api/orders/<order_id>/approve', methods=['PUT'])
+def approve_order(order_id):
+    try:
+        data = request.get_json()
+        handler_name = data.get('handler_name', '').strip()
+        
+        if not handler_name:
+            return jsonify({"message": "Handler name is required"}), 400
+        
+        result = update_order_status(order_id, 'Approved', handler_name)
+        
+        if result['success']:
+            return jsonify({
+                "message": result['message'],
+                "order": result['order']
+            }), 200
+        else:
+            return jsonify({"message": result['message']}), 400
+            
+    except Exception as e:
+        return jsonify({"message": f"Server error: {str(e)}"}), 500
+
+@app.route('/api/orders/<order_id>/reject', methods=['PUT'])
+def reject_order(order_id):
+    try:
+        data = request.get_json()
+        handler_name = data.get('handler_name', '').strip()
+        
+        if not handler_name:
+            return jsonify({"message": "Handler name is required"}), 400
+        
+        result = update_order_status(order_id, 'Rejected', handler_name)
+        
+        if result['success']:
+            return jsonify({
+                "message": result['message'],
+                "order": result['order']
+            }), 200
+        else:
+            return jsonify({"message": result['message']}), 400
+            
+    except Exception as e:
+        return jsonify({"message": f"Server error: {str(e)}"}), 500
 
 @app.route('/api/balances/<int:supplier_id>')
 def get_balance(supplier_id):

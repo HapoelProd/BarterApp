@@ -446,6 +446,93 @@ def get_all_orders():
     conn.close()
     return orders
 
+def update_order_status(order_id, new_status, handler_name):
+    """Update order status and handler, and adjust supplier balance if approved"""
+    conn = sqlite3.connect(DATABASE_PATH)
+    cursor = conn.cursor()
+    
+    try:
+        # Get order details first
+        cursor.execute('''
+            SELECT Supplier_ID, Order_Amount, Order_Status 
+            FROM orders 
+            WHERE Order_ID = ?
+        ''', (order_id,))
+        
+        result = cursor.fetchone()
+        if not result:
+            return {'success': False, 'message': 'Order not found'}
+        
+        supplier_id, order_amount, current_status = result
+        
+        # Prevent duplicate processing
+        if current_status != 'Pending':
+            return {'success': False, 'message': f'Order is already {current_status.lower()}'}
+        
+        # Update order status and handler
+        cursor.execute('''
+            UPDATE orders 
+            SET Order_Status = ?, Handler = ?
+            WHERE Order_ID = ?
+        ''', (new_status, handler_name, order_id))
+        
+        # If approved, reduce supplier's current amount
+        if new_status == 'Approved':
+            cursor.execute('''
+                UPDATE suppliers 
+                SET Current_Amount = Current_Amount - ?, updated_at = CURRENT_TIMESTAMP
+                WHERE Supplier_ID = ?
+            ''', (order_amount, supplier_id))
+            
+            # Log transaction
+            cursor.execute('''
+                INSERT INTO transactions (supplier_id, transaction_type, amount, description)
+                VALUES (?, ?, ?, ?)
+            ''', (supplier_id, 'order_approved', -order_amount, f'Order {order_id} approved by {handler_name}'))
+        
+        conn.commit()
+        
+        # Get updated order details
+        cursor.execute('''
+            SELECT o.Order_ID, o.Supplier_ID, s.Supplier_Name, o.Order_Title, 
+                   o.Order_Category, o.Order_Amount, o.Order_Date, o.Order_By, 
+                   o.Notes, o.Order_Status, o.Handler, o.created_at
+            FROM orders o
+            LEFT JOIN suppliers s ON o.Supplier_ID = s.Supplier_ID
+            WHERE o.Order_ID = ?
+        ''', (order_id,))
+        
+        row = cursor.fetchone()
+        if row:
+            updated_order = {
+                'order_id': row[0],
+                'supplier_id': row[1],
+                'supplier_name': row[2] or f'Unknown Supplier (ID: {row[1]})',
+                'title': row[3],
+                'category': row[4],
+                'amount': float(row[5]),
+                'order_date': row[6],
+                'ordered_by': row[7],
+                'notes': row[8],
+                'status': row[9],
+                'handler': row[10],
+                'created_at': row[11]
+            }
+            
+            return {
+                'success': True, 
+                'message': f'Order {order_id} {new_status.lower()} successfully by {handler_name}',
+                'order': updated_order
+            }
+        else:
+            return {'success': False, 'message': 'Failed to retrieve updated order'}
+    
+    except Exception as e:
+        conn.rollback()
+        return {'success': False, 'message': f'Database error: {str(e)}'}
+    finally:
+        conn.close()
+
 if __name__ == '__main__':
     # Initialize database when run directly
     init_database()
