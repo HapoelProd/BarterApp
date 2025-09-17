@@ -95,7 +95,7 @@ const RemoveSupplier: React.FC = () => {
 
   return (
     <div>
-      <p style={{ color: '#ffffff', marginBottom: '20px' }}>
+      <p style={{ color: '#000000', marginBottom: '20px' }}>
         Remove a supplier from the system. This action will permanently delete the supplier and all transaction history.
       </p>
 
@@ -114,7 +114,7 @@ const RemoveSupplier: React.FC = () => {
       
       <div style={{ maxWidth: '500px' }}>
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+          <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
             Select Supplier to Remove (A-Z)
           </label>
           <select
@@ -142,7 +142,7 @@ const RemoveSupplier: React.FC = () => {
             backgroundColor: 'rgba(220, 38, 38, 0.1)'
           }}>
             <h4 style={{ color: '#dc2626', margin: '0 0 12px 0' }}>Supplier Details</h4>
-            <div style={{ color: '#ffffff' }}>
+            <div style={{ color: '#000000' }}>
               <p><strong>Name:</strong> {selectedSupplierData.name}</p>
               <p><strong>Initial Amount:</strong> {selectedSupplierData.initial_amount}₪</p>
               <p><strong>Current Amount:</strong> {selectedSupplierData.current_amount}₪</p>
@@ -155,10 +155,10 @@ const RemoveSupplier: React.FC = () => {
             <div className="error" style={{ marginBottom: '12px', fontSize: '16px' }}>
               ⚠️ WARNING: This action cannot be undone!
             </div>
-            <p style={{ color: '#ffffff', marginBottom: '12px' }}>
+            <p style={{ color: '#000000', marginBottom: '12px' }}>
               This will permanently delete supplier <strong>"{selectedSupplierData.name}"</strong> and all associated transaction history.
             </p>
-            <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+            <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
               Type "delete" to confirm removal:
             </label>
             <input

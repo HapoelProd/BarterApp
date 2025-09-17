@@ -123,7 +123,7 @@ const AddOrderCategory: React.FC = () => {
 
   return (
     <div>
-      <p style={{ color: '#ffffff', marginBottom: '20px' }}>
+      <p style={{ color: '#000000', marginBottom: '20px' }}>
         Add new order categories that suppliers can choose from when creating orders.
       </p>
 
@@ -142,7 +142,7 @@ const AddOrderCategory: React.FC = () => {
       
       <div style={{ maxWidth: '500px' }}>
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+          <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
             Category Name *
           </label>
           <input
@@ -159,7 +159,7 @@ const AddOrderCategory: React.FC = () => {
         </div>
 
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+          <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
             Description (Optional)
           </label>
           <textarea
@@ -186,13 +186,13 @@ const AddOrderCategory: React.FC = () => {
           }}>
             {categories.map(category => (
               <div key={category.id} style={{ 
-                color: '#ffffff', 
+                color: '#000000', 
                 padding: '4px 0',
-                borderBottom: '1px solid rgba(255, 255, 255, 0.1)'
+                borderBottom: '1px solid rgba(0, 0, 0, 0.1)'
               }}>
                 <strong>{category.name}</strong>
                 {category.description && category.description !== 'Default category' && (
-                  <span style={{ color: '#cccccc', fontSize: '0.9em' }}>
+                  <span style={{ color: '#666666', fontSize: '0.9em' }}>
                     {' - ' + category.description}
                   </span>
                 )}

@@ -150,7 +150,7 @@ const EditSupplier: React.FC = () => {
 
   return (
     <div>
-      <p style={{ color: '#ffffff', marginBottom: '20px' }}>
+      <p style={{ color: '#000000', marginBottom: '20px' }}>
         Select a supplier from the list and edit their information including name and balance amounts.
       </p>
 
@@ -169,7 +169,7 @@ const EditSupplier: React.FC = () => {
       
       <div style={{ maxWidth: '500px' }}>
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+          <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
             Select Supplier to Edit
           </label>
           <select
@@ -192,7 +192,7 @@ const EditSupplier: React.FC = () => {
           <div>
             <div style={{ display: 'grid', gap: '16px', marginBottom: '20px' }}>
               <div>
-                <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
                   Supplier Name
                 </label>
                 <input
@@ -208,7 +208,7 @@ const EditSupplier: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
                   Initial Amount (₪)
                 </label>
                 <input
@@ -226,7 +226,7 @@ const EditSupplier: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
                   Current Amount (₪)
                 </label>
                 <input

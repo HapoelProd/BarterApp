@@ -127,7 +127,7 @@ const InitializeSupplier: React.FC = () => {
 
   return (
     <div>
-      <p style={{ color: '#ffffff', marginBottom: '20px' }}>
+      <p style={{ color: '#000000', marginBottom: '20px' }}>
         Initialize a supplier with new balance amounts and optionally export transaction history to orders.
       </p>
 
@@ -146,7 +146,7 @@ const InitializeSupplier: React.FC = () => {
       
       <div style={{ maxWidth: '500px' }}>
         <div style={{ marginBottom: '20px' }}>
-          <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+          <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
             Select Supplier to Initialize (A-Z)
           </label>
           <select
@@ -175,7 +175,7 @@ const InitializeSupplier: React.FC = () => {
               backgroundColor: 'rgba(220, 38, 38, 0.1)'
             }}>
               <h4 style={{ color: '#dc2626', margin: '0 0 12px 0' }}>Current Supplier Status</h4>
-              <div style={{ color: '#ffffff' }}>
+              <div style={{ color: '#000000' }}>
                 <p><strong>Name:</strong> {selectedSupplierData.name}</p>
                 <p><strong>Current Initial Amount:</strong> {selectedSupplierData.initial_amount}₪</p>
                 <p><strong>Current Balance:</strong> {selectedSupplierData.current_amount}₪</p>
@@ -184,7 +184,7 @@ const InitializeSupplier: React.FC = () => {
 
             <div style={{ display: 'grid', gap: '16px', marginBottom: '20px' }}>
               <div>
-                <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
                   New Initial Amount (₪) *
                 </label>
                 <input
@@ -203,7 +203,7 @@ const InitializeSupplier: React.FC = () => {
               </div>
 
               <div>
-                <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+                <label style={{ color: '#000000', display: 'block', marginBottom: '8px' }}>
                   New Current Amount (₪)
                 </label>
                 <input
@@ -218,7 +218,7 @@ const InitializeSupplier: React.FC = () => {
                   min="0"
                   disabled={isSubmitting}
                 />
-                <small style={{ color: '#ffffff', opacity: 0.7, fontSize: '12px' }}>
+                <small style={{ color: '#000000', opacity: 0.7, fontSize: '12px' }}>
                   Leave empty to default to Initial Amount
                 </small>
               </div>
@@ -230,7 +230,7 @@ const InitializeSupplier: React.FC = () => {
                 backgroundColor: 'rgba(220, 38, 38, 0.05)'
               }}>
                 <label style={{ 
-                  color: '#ffffff', 
+                  color: '#000000', 
                   display: 'flex', 
                   alignItems: 'center', 
                   cursor: 'pointer' 
@@ -244,7 +244,7 @@ const InitializeSupplier: React.FC = () => {
                   />
                   Export previous history to orders table
                 </label>
-                <small style={{ color: '#ffffff', opacity: 0.8, fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                <small style={{ color: '#000000', opacity: 0.8, fontSize: '12px', marginTop: '4px', display: 'block' }}>
                   Check this to save current transaction history as an order before resetting
                 </small>
               </div>
@@ -260,7 +260,7 @@ const InitializeSupplier: React.FC = () => {
               <div className="error" style={{ marginBottom: '8px', fontSize: '14px' }}>
                 ⚠️ WARNING: This will reset all supplier balances and clear transaction history!
               </div>
-              <p style={{ color: '#ffffff', fontSize: '12px', margin: 0 }}>
+              <p style={{ color: '#000000', fontSize: '12px', margin: 0 }}>
                 This action will update the supplier's initial and current amounts, and clear all existing transaction history. 
                 {exportHistory && " The current history will be exported to the orders table before clearing."}
               </p>
