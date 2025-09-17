@@ -76,7 +76,7 @@ const AddSupplier: React.FC = () => {
 
   return (
     <div>
-      <p style={{ color: '#ffffff', marginBottom: '20px' }}>
+      <p style={{ color: '#000000ff', marginBottom: '20px' }}>
         Add a new supplier to the system with their initial and current balance amounts.
       </p>
       
@@ -96,7 +96,7 @@ const AddSupplier: React.FC = () => {
       <form onSubmit={handleSubmit}>
         <div style={{ display: 'grid', gap: '16px', maxWidth: '500px' }}>
           <div>
-            <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+            <label style={{ color: '#000000ff', display: 'block', marginBottom: '8px' }}>
               Supplier Name *
             </label>
             <input
@@ -113,7 +113,7 @@ const AddSupplier: React.FC = () => {
           </div>
 
           <div>
-            <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+            <label style={{ color: '#000000ff', display: 'block', marginBottom: '8px' }}>
               Initial Amount (₪) *
             </label>
             <input
@@ -132,7 +132,7 @@ const AddSupplier: React.FC = () => {
           </div>
 
           <div>
-            <label style={{ color: '#ffffff', display: 'block', marginBottom: '8px' }}>
+            <label style={{ color: '#000000ff', display: 'block', marginBottom: '8px' }}>
               Current Amount (₪)
             </label>
             <input
@@ -147,7 +147,7 @@ const AddSupplier: React.FC = () => {
               min="0"
               disabled={isSubmitting}
             />
-            <small style={{ color: '#ffffff', opacity: 0.7, fontSize: '12px' }}>
+            <small style={{ color: '#000000ff', opacity: 0.7, fontSize: '12px' }}>
               Leave empty to default to Initial Amount
             </small>
           </div>

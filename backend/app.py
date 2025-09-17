@@ -126,42 +126,6 @@ def supplier_operations(supplier_id):
         except Exception as e:
             return jsonify({"message": f"Server error: {str(e)}"}), 500
 
-@app.route('/api/suppliers/<int:supplier_id>/initialize', methods=['POST'])
-def initialize_supplier_endpoint(supplier_id):
-    try:
-        data = request.get_json()
-        
-        # Validate required fields
-        if 'initialAmount' not in data:
-            return jsonify({"message": "Missing required field: initialAmount"}), 400
-        
-        initial_amount = float(data['initialAmount'])
-        current_amount = float(data.get('currentAmount', initial_amount))
-        export_history = data.get('exportHistory', False)
-        
-        # Validate values
-        if initial_amount <= 0:
-            return jsonify({"message": "Initial Amount must be greater than 0"}), 400
-        
-        if initial_amount < 0 or current_amount < 0:
-            return jsonify({"message": "Amounts must be non-negative"}), 400
-        
-        # Initialize supplier in database
-        result = initialize_supplier(supplier_id, initial_amount, current_amount, export_history)
-        
-        if result['success']:
-            return jsonify({
-                "message": result['message'],
-                "exported_to_orders": result.get('exported_to_orders', False)
-            }), 200
-        else:
-            return jsonify({"message": result['message']}), 404
-            
-    except ValueError:
-        return jsonify({"message": "Invalid number format for amounts"}), 400
-    except Exception as e:
-        return jsonify({"message": f"Server error: {str(e)}"}), 500
-
 @app.route('/api/orders', methods=['GET', 'POST'])
 def orders():
     if request.method == 'GET':
