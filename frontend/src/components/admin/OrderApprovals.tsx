@@ -27,7 +27,7 @@ interface OrderWithSupplier extends Order {
 const OrderApprovals: React.FC = () => {
   const [orders, setOrders] = useState<OrderWithSupplier[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [filter, setFilter] = useState<'All' | 'Pending' | 'Approved' | 'Rejected'>('Pending');
+  const [filter, setFilter] = useState<'Pending'>('Pending');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
 
@@ -83,7 +83,7 @@ const OrderApprovals: React.FC = () => {
           ordered_by: "Mike Johnson",
           notes: "New laptops for development team",
           status: "Approved",
-          handler: "Admin"
+          handler: "Admin User"
         }
       ];
 
@@ -122,7 +122,7 @@ const OrderApprovals: React.FC = () => {
       // Update local state
       setOrders(prev => prev.map(order => 
         order.order_id === orderId 
-          ? { ...order, status: 'Approved', handler: 'Admin' }
+          ? { ...order, status: 'Approved', handler: 'Admin User' }
           : order
       ));
       
@@ -141,7 +141,7 @@ const OrderApprovals: React.FC = () => {
       // Update local state
       setOrders(prev => prev.map(order => 
         order.order_id === orderId 
-          ? { ...order, status: 'Rejected', handler: 'Admin' }
+          ? { ...order, status: 'Rejected', handler: 'Admin User' }
           : order
       ));
       
@@ -152,10 +152,7 @@ const OrderApprovals: React.FC = () => {
     }
   };
 
-  const filteredOrders = orders.filter(order => {
-    if (filter === 'All') return true;
-    return order.status === filter;
-  });
+  const filteredOrders = orders.filter(order => order.status === 'Pending');
 
   const pendingCount = orders.filter(o => o.status === 'Pending').length;
 
@@ -171,26 +168,6 @@ const OrderApprovals: React.FC = () => {
         </div>
       )}
 
-      {/* Filter Tabs */}
-      <div style={{ marginBottom: '20px' }}>
-        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-          {(['All', 'Pending', 'Approved', 'Rejected'] as const).map(status => (
-            <button
-              key={status}
-              onClick={() => setFilter(status)}
-              className={filter === status ? 'btn btn-primary' : 'btn'}
-              style={{
-                fontSize: '14px',
-                padding: '8px 16px',
-                backgroundColor: filter === status ? '#dc2626' : 'transparent',
-                color: filter === status ? '#ffffff' : '#dc2626'
-              }}
-            >
-              {status} {status === 'Pending' && pendingCount > 0 && `(${pendingCount})`}
-            </button>
-          ))}
-        </div>
-      </div>
 
       {/* Orders List */}
       {isLoading ? (
@@ -199,7 +176,7 @@ const OrderApprovals: React.FC = () => {
         </div>
       ) : filteredOrders.length === 0 ? (
         <div style={{ textAlign: 'center', padding: '40px', color: '#666666' }}>
-          No {filter.toLowerCase()} orders found.
+          No pending orders found.
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -271,26 +248,58 @@ const OrderApprovals: React.FC = () => {
                   <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
                     <button
                       onClick={() => handleApprove(order.order_id)}
-                      className="btn"
                       style={{
                         backgroundColor: '#059669',
-                        borderColor: '#059669',
+                        border: '2px solid #059669',
                         color: '#ffffff',
                         fontSize: '14px',
-                        padding: '8px 16px'
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 2px 4px rgba(5, 150, 105, 0.2)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#047857';
+                        e.currentTarget.style.borderColor = '#047857';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#059669';
+                        e.currentTarget.style.borderColor = '#059669';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(5, 150, 105, 0.2)';
                       }}
                     >
                       ✓ Approve
                     </button>
                     <button
                       onClick={() => handleReject(order.order_id)}
-                      className="btn"
                       style={{
                         backgroundColor: '#dc2626',
-                        borderColor: '#dc2626',
+                        border: '2px solid #dc2626',
                         color: '#ffffff',
                         fontSize: '14px',
-                        padding: '8px 16px'
+                        padding: '8px 16px',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: '600',
+                        transition: 'all 0.3s ease',
+                        boxShadow: '0 2px 4px rgba(220, 38, 38, 0.2)'
+                      }}
+                      onMouseEnter={(e) => {
+                        e.currentTarget.style.backgroundColor = '#b91c1c';
+                        e.currentTarget.style.borderColor = '#b91c1c';
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(220, 38, 38, 0.3)';
+                      }}
+                      onMouseLeave={(e) => {
+                        e.currentTarget.style.backgroundColor = '#dc2626';
+                        e.currentTarget.style.borderColor = '#dc2626';
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 4px rgba(220, 38, 38, 0.2)';
                       }}
                     >
                       ✗ Reject

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SupplierSidebar from './supplier/SupplierSidebar';
 import SubmitNewOrder from './supplier/SubmitNewOrder';
+import OrderHistory from './supplier/OrderHistory';
 
 interface Supplier {
   id: number;
@@ -95,13 +96,9 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onNavigate }) => {
                 {/* Submit New Order Form */}
                 <SubmitNewOrder selectedSupplier={selectedSupplier} />
 
-                {/* Order History Card */}
-                <div className="card" style={{ marginTop: '24px' }}>
-                  <h3>Order History</h3>
-                  <p style={{ color: '#475569', marginBottom: '16px' }}>
-                    Review past orders with {selectedSupplier.name} and their current status
-                  </p>
-                  <button className="btn">View Order History</button>
+                {/* Order History */}
+                <div style={{ marginTop: '24px' }}>
+                  <OrderHistory selectedSupplier={selectedSupplier} />
                 </div>
               </div>
             ) : (
@@ -138,13 +135,6 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onNavigate }) => {
                     <button className="btn btn-primary">New Order</button>
                   </div>
 
-                  <div className="card">
-                    <h3>View All Balances</h3>
-                    <p style={{ color: '#475569', marginBottom: '16px' }}>
-                      Check current barter balances across all suppliers
-                    </p>
-                    <button className="btn">Check All Balances</button>
-                  </div>
 
                   <div className="card">
                     <h3>Order History</h3>
