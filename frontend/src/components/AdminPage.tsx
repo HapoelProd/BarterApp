@@ -5,6 +5,7 @@ import RemoveSupplier from './supplier/RemoveSupplier';
 import EditSupplier from './supplier/EditSupplier';
 import InitializeSupplier from './supplier/InitializeSupplier';
 import AddOrderCategory from './admin/AddOrderCategory';
+import OrderApprovals from './admin/OrderApprovals';
 
 interface AdminPageProps {
   onNavigate: (page: string) => void;
@@ -53,15 +54,9 @@ const AdminPage: React.FC<AdminPageProps> = ({ onNavigate }) => {
             <AddOrderCategory />
           </ExpandableSection>
           
-          <div style={{ marginTop: '20px' }}>
-            <div className="card">
-              <h3>Order Approvals</h3>
-              <p style={{ color: '#475569', marginBottom: '16px' }}>
-                Review and approve pending barter orders and transactions
-              </p>
-              <button className="btn">Pending Orders</button>
-            </div>
-          </div>
+          <ExpandableSection title="Order Approvals">
+            <OrderApprovals />
+          </ExpandableSection>
         </div>
       </div>
 
