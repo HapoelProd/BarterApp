@@ -327,10 +327,15 @@ textarea.input {
 /* Expandable Section Styles */
 .expandable-section {
   margin-bottom: 16px;
+  width: 100%;
+  min-width: 0; /* Prevents flex item from being wider than container */
 }
 
 .expandable-section .card {
   cursor: pointer;
+  width: 100%;
+  min-width: 0; /* Prevents content overflow from expanding width */
+  box-sizing: border-box;
 }
 
 .expandable-content {
@@ -340,6 +345,36 @@ textarea.input {
   margin-top: 16px;
   border: 1px solid #e2e8f0;
   animation: expandIn 0.3s ease-out;
+  width: 100%;
+  box-sizing: border-box;
+  overflow-x: auto; /* Handle content that might be too wide */
+}
+
+/* Ensure all content within expandable sections respects width */
+.expandable-content * {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.expandable-content table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.expandable-content input,
+.expandable-content select,
+.expandable-content textarea {
+  max-width: 100%;
+}
+
+/* Fix specific components that might overflow */
+.expandable-content .card {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.expandable-content div[style*="display: grid"] {
+  max-width: 100%;
 }
 
 @keyframes expandIn {
