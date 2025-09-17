@@ -30,6 +30,8 @@ const OrderApprovals: React.FC = () => {
   const [filter, setFilter] = useState<'Pending'>('Pending');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+  const [adminNames, setAdminNames] = useState<{ [orderId: string]: string }>({});
+  const [orderErrors, setOrderErrors] = useState<{ [orderId: string]: string }>({});
 
   const fetchSuppliers = useCallback(async () => {
     try {
@@ -46,59 +48,34 @@ const OrderApprovals: React.FC = () => {
   const fetchOrders = useCallback(async () => {
     try {
       setIsLoading(true);
-      // For now, using mock data since the orders endpoint returns static data
-      // TODO: Replace with real API call when backend is updated
-      const mockOrders: Order[] = [
-        {
-          order_id: "ORD-001-2024",
-          supplier_id: 1,
-          title: "Office Supplies Order",
-          category: "Office Supplies",
-          amount: 500.00,
-          order_date: "2024-01-15",
-          ordered_by: "John Doe",
-          notes: "Urgent order for Q1 supplies",
-          status: "Pending",
-          handler: ""
-        },
-        {
-          order_id: "ORD-002-2024", 
-          supplier_id: 2,
-          title: "Coffee and Beverages",
-          category: "Drinks",
-          amount: 250.00,
-          order_date: "2024-01-14",
-          ordered_by: "Jane Smith",
-          notes: "Monthly beverage restocking",
-          status: "Pending",
-          handler: ""
-        },
-        {
-          order_id: "ORD-003-2024",
-          supplier_id: 1,
-          title: "Tech Equipment Purchase",
-          category: "Tech",
-          amount: 1000.00,
-          order_date: "2024-01-13",
-          ordered_by: "Mike Johnson",
-          notes: "New laptops for development team",
-          status: "Approved",
-          handler: "Admin User"
-        }
-      ];
+      const response = await fetch('http://localhost:5000/api/orders');
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Merge orders with supplier data
+        const ordersWithSuppliers: OrderWithSupplier[] = data.map((order: any) => {
+          const supplier = suppliers.find(s => s.id === order.supplier_id);
+          return {
+            order_id: order.order_id,
+            supplier_id: order.supplier_id,
+            title: order.title,
+            category: order.category,
+            amount: order.amount,
+            order_date: order.order_date,
+            ordered_by: order.ordered_by,
+            notes: order.notes,
+            status: order.status,
+            handler: order.handler,
+            supplier_name: supplier ? supplier.name : `Unknown Supplier (ID: ${order.supplier_id})`
+          };
+        });
 
-      // Merge orders with supplier data
-      const ordersWithSuppliers: OrderWithSupplier[] = mockOrders.map(order => {
-        const supplier = suppliers.find(s => s.id === order.supplier_id);
-        return {
-          ...order,
-          supplier_name: supplier ? supplier.name : `Unknown Supplier (ID: ${order.supplier_id})`
-        };
-      });
-
-      setOrders(ordersWithSuppliers);
+        setOrders(ordersWithSuppliers);
+      } else {
+        setMessage({ type: 'error', text: 'Failed to fetch orders' });
+      }
     } catch (error) {
-      setMessage({ type: 'error', text: 'Failed to load orders' });
+      setMessage({ type: 'error', text: 'Network error. Please check if the backend server is running.' });
     } finally {
       setIsLoading(false);
     }
@@ -115,18 +92,30 @@ const OrderApprovals: React.FC = () => {
   }, [fetchOrders, suppliers]);
 
   const handleApprove = async (orderId: string) => {
+    const adminName = adminNames[orderId]?.trim();
+    if (!adminName) {
+      setOrderErrors(prev => ({ ...prev, [orderId]: 'Please enter admin name before approving the order' }));
+      return;
+    }
+
+    // Clear any existing error for this order
+    setOrderErrors(prev => ({ ...prev, [orderId]: '' }));
+
     try {
       // TODO: Implement actual API call
-      console.log('Approving order:', orderId);
+      console.log('Approving order:', orderId, 'by:', adminName);
       
       // Update local state
       setOrders(prev => prev.map(order => 
         order.order_id === orderId 
-          ? { ...order, status: 'Approved', handler: 'Admin User' }
+          ? { ...order, status: 'Approved', handler: adminName }
           : order
       ));
       
-      setMessage({ type: 'success', text: `Order ${orderId} approved successfully!` });
+      // Clear admin name for this order
+      setAdminNames(prev => ({ ...prev, [orderId]: '' }));
+      
+      setMessage({ type: 'success', text: `Order ${orderId} approved successfully by ${adminName}!` });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to approve order' });
@@ -134,18 +123,30 @@ const OrderApprovals: React.FC = () => {
   };
 
   const handleReject = async (orderId: string) => {
+    const adminName = adminNames[orderId]?.trim();
+    if (!adminName) {
+      setOrderErrors(prev => ({ ...prev, [orderId]: 'Please enter admin name before rejecting the order' }));
+      return;
+    }
+
+    // Clear any existing error for this order
+    setOrderErrors(prev => ({ ...prev, [orderId]: '' }));
+
     try {
       // TODO: Implement actual API call
-      console.log('Rejecting order:', orderId);
+      console.log('Rejecting order:', orderId, 'by:', adminName);
       
       // Update local state
       setOrders(prev => prev.map(order => 
         order.order_id === orderId 
-          ? { ...order, status: 'Rejected', handler: 'Admin User' }
+          ? { ...order, status: 'Rejected', handler: adminName }
           : order
       ));
       
-      setMessage({ type: 'success', text: `Order ${orderId} rejected successfully!` });
+      // Clear admin name for this order
+      setAdminNames(prev => ({ ...prev, [orderId]: '' }));
+      
+      setMessage({ type: 'success', text: `Order ${orderId} rejected successfully by ${adminName}!` });
       setTimeout(() => setMessage({ type: '', text: '' }), 3000);
     } catch (error) {
       setMessage({ type: 'error', text: 'Failed to reject order' });
@@ -245,7 +246,31 @@ const OrderApprovals: React.FC = () => {
                 )}
 
                 {order.status === 'Pending' && (
-                  <div style={{ display: 'flex', gap: '12px', marginTop: '16px' }}>
+                  <div style={{ marginTop: '16px' }}>
+                    {/* Admin Name Input */}
+                    <div style={{ marginBottom: '12px' }}>
+                      <label style={{ color: '#374151', display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                        Admin Name *
+                      </label>
+                      <input
+                        type="text"
+                        value={adminNames[order.order_id] || ''}
+                        onChange={(e) => {
+                          setAdminNames(prev => ({ ...prev, [order.order_id]: e.target.value }));
+                          // Clear error when user starts typing
+                          if (orderErrors[order.order_id]) {
+                            setOrderErrors(prev => ({ ...prev, [order.order_id]: '' }));
+                          }
+                        }}
+                        className="input"
+                        style={{ width: '200px', fontSize: '14px', padding: '8px 12px' }}
+                        placeholder="Enter your name"
+                        required
+                      />
+                    </div>
+                    
+                    {/* Action Buttons */}
+                    <div style={{ display: 'flex', gap: '12px' }}>
                     <button
                       onClick={() => handleApprove(order.order_id)}
                       style={{
@@ -304,6 +329,23 @@ const OrderApprovals: React.FC = () => {
                     >
                       ✗ Reject
                     </button>
+                    </div>
+                    
+                    {/* Order-specific Error Message */}
+                    {orderErrors[order.order_id] && (
+                      <div style={{
+                        marginTop: '12px',
+                        padding: '12px',
+                        backgroundColor: 'rgba(220, 38, 38, 0.05)',
+                        border: '1px solid #dc2626',
+                        borderRadius: '8px',
+                        color: '#dc2626',
+                        fontSize: '14px',
+                        fontWeight: '500'
+                      }}>
+                        {orderErrors[order.order_id]}
+                      </div>
+                    )}
                   </div>
                 )}
 
