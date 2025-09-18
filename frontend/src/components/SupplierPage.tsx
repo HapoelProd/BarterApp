@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import SupplierSidebar from './supplier/SupplierSidebar';
 import SubmitNewOrder from './supplier/SubmitNewOrder';
 import OrderHistory from './supplier/OrderHistory';
+import { formatCurrency } from '../utils/formatters';
 
 interface Supplier {
   id: number;
@@ -71,23 +72,13 @@ const SupplierPage: React.FC<SupplierPageProps> = ({ onNavigate }) => {
                     <div>
                       <strong style={{ color: '#374151' }}>Initial Amount:</strong>
                       <div style={{ color: '#dc2626', fontSize: '1.2rem', fontWeight: '600' }}>
-                        {selectedSupplier.initial_amount.toFixed(2)}₪
+                        {formatCurrency(selectedSupplier.initial_amount)}
                       </div>
                     </div>
                     <div>
-                      <strong style={{ color: '#374151' }}>Current Balance:</strong>
-                      <div style={{ color: '#dc2626', fontSize: '1.2rem', fontWeight: '600' }}>
-                        {selectedSupplier.current_amount.toFixed(2)}₪
-                      </div>
-                    </div>
-                    <div>
-                      <strong style={{ color: '#374151' }}>Available Credit:</strong>
-                      <div style={{ 
-                        color: selectedSupplier.current_amount > 0 ? '#059669' : '#dc2626', 
-                        fontSize: '1.2rem', 
-                        fontWeight: '600' 
-                      }}>
-                        {selectedSupplier.current_amount.toFixed(2)}₪
+                      <strong style={{ color: '#374151' }}>Current Amount:</strong>
+                      <div style={{ color: '#059669', fontSize: '1.2rem', fontWeight: '600' }}>
+                        {formatCurrency(selectedSupplier.current_amount)}
                       </div>
                     </div>
                   </div>

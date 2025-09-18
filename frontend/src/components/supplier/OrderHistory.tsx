@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { formatCurrency, formatDate } from '../../utils/formatters';
 
 interface Order {
   order_id: string;
@@ -176,10 +177,10 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ selectedSupplier }) => {
                     {order.title}
                   </td>
                   <td style={{ padding: '12px', color: '#dc2626', fontSize: '14px', fontWeight: '600', textAlign: 'right' }}>
-                    {order.amount.toFixed(2)}₪
+                    {formatCurrency(order.amount)}
                   </td>
                   <td style={{ padding: '12px', color: '#6b7280', fontSize: '14px' }}>
-                    {new Date(order.order_date).toLocaleDateString()}
+                    {formatDate(order.order_date)}
                   </td>
                   <td style={{ padding: '12px', color: '#6b7280', fontSize: '14px' }}>
                     {order.ordered_by}
@@ -237,7 +238,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ selectedSupplier }) => {
             <div>
               <span style={{ color: '#6b7280' }}>Total Amount: </span>
               <span style={{ color: '#dc2626', fontWeight: '600' }}>
-                {filteredOrders.reduce((sum, order) => sum + order.amount, 0).toFixed(2)}₪
+                {formatCurrency(filteredOrders.reduce((sum, order) => sum + order.amount, 0))}
               </span>
             </div>
           </div>

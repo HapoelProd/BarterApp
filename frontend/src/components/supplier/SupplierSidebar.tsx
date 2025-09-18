@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { formatCurrency } from '../../utils/formatters';
 
 interface Supplier {
   id: number;
@@ -246,13 +247,13 @@ const SupplierSidebar: React.FC<SupplierSidebarProps> = ({
                     fontSize: '12px',
                     marginBottom: '2px'
                   }}>
-                    Initial: {supplier.initial_amount.toFixed(2)}₪
+                    Initial: {formatCurrency(supplier.initial_amount)}
                   </div>
                   <div style={{
                     color: '#9ca3af',
                     fontSize: '12px'
                   }}>
-                    Current: {supplier.current_amount.toFixed(2)}₪
+                    Current: {formatCurrency(supplier.current_amount)}
                   </div>
                 </div>
               </div>

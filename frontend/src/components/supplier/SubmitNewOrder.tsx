@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency, formatDateForInput } from '../../utils/formatters';
 
 interface Supplier {
   id: number;
@@ -19,7 +20,7 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
   const [orderData, setOrderData] = useState({
     orderTitle: '',
     amount: '',
-    orderDate: new Date().toISOString().split('T')[0], // Today's date
+    orderDate: formatDateForInput(), // Today's date
     orderedBy: '',
     notes: ''
   });
@@ -110,7 +111,7 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
       setOrderData({
         orderTitle: '',
         amount: '',
-        orderDate: new Date().toISOString().split('T')[0],
+        orderDate: formatDateForInput(),
         orderedBy: '',
         notes: ''
       });
@@ -286,7 +287,7 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
               <div>
                 <span style={{ color: '#6b7280' }}>Available: </span>
                 <span style={{ color: selectedSupplier.current_amount > 0 ? '#059669' : '#dc2626', fontWeight: '600' }}>
-                  {selectedSupplier.current_amount.toFixed(2)}₪
+                  {formatCurrency(selectedSupplier.current_amount)}
                 </span>
               </div>
               {orderData.amount && (
@@ -296,7 +297,7 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
                     color: (selectedSupplier.current_amount - parseFloat(orderData.amount || '0')) >= 0 ? '#059669' : '#dc2626',
                     fontWeight: '600' 
                   }}>
-                    {(selectedSupplier.current_amount - parseFloat(orderData.amount || '0')).toFixed(2)}₪
+                    {formatCurrency(selectedSupplier.current_amount - parseFloat(orderData.amount || '0'))}
                   </span>
                 </div>
               )}

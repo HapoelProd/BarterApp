@@ -11,21 +11,25 @@ const AddSupplier: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setSupplierData(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    
+    setSupplierData(prev => {
+      const newData = { ...prev, [name]: value };
+      
+      // Validate current amount doesn't exceed initial amount
+      if (name === 'currentAmount' && newData.initialAmount) {
+        const initial = parseFloat(newData.initialAmount);
+        const current = parseFloat(value);
+        if (current > initial) {
+          // Don't update if current exceeds initial
+          return prev;
+        }
+      }
+      
+      return newData;
+    });
   };
 
-  // Default Current Amount to Initial Amount if left empty
-  useEffect(() => {
-    if (supplierData.initialAmount && !supplierData.currentAmount) {
-      setSupplierData(prev => ({
-        ...prev,
-        currentAmount: prev.initialAmount
-      }));
-    }
-  }, [supplierData.initialAmount, supplierData.currentAmount]);
+  // Remove auto-filling current amount - only default on submit
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -145,6 +149,7 @@ const AddSupplier: React.FC = () => {
               placeholder={supplierData.initialAmount || "Will default to Initial Amount"}
               step="0.01"
               min="0"
+              max={supplierData.initialAmount || undefined}
               disabled={isSubmitting}
             />
             <small style={{ color: '#000000ff', opacity: 0.7, fontSize: '12px' }}>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { formatCurrency, formatDate } from '../../utils/formatters';
 
 interface Order {
   order_id: string;
@@ -236,11 +237,11 @@ const OrderApprovals: React.FC = () => {
                   </div>
                   <div>
                     <strong style={{ color: '#374151' }}>Amount:</strong>
-                    <div style={{ color: '#dc2626', fontSize: '14px', fontWeight: '600' }}>{order.amount.toFixed(2)}₪</div>
+                    <div style={{ color: '#dc2626', fontSize: '14px', fontWeight: '600' }}>{formatCurrency(order.amount)}</div>
                   </div>
                   <div>
                     <strong style={{ color: '#374151' }}>Date:</strong>
-                    <div style={{ color: '#6b7280', fontSize: '14px' }}>{new Date(order.order_date).toLocaleDateString()}</div>
+                    <div style={{ color: '#6b7280', fontSize: '14px' }}>{formatDate(order.order_date)}</div>
                   </div>
                   <div>
                     <strong style={{ color: '#374151' }}>Ordered By:</strong>
