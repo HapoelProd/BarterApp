@@ -225,8 +225,9 @@ def reject_order(order_id):
 def admin_login():
     data = request.get_json()
     password = data.get('password', '')
+    admin_password = os.getenv('ADMIN_PASSWORD', 'Hapoel2025')
     
-    if password == 'Hapoel2025':
+    if password == admin_password:
         return jsonify({
             "success": True,
             "message": "Login successful",
@@ -239,4 +240,9 @@ def admin_login():
         }), 401
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.getenv('FLASK_PORT', 5000))
+    host = os.getenv('FLASK_HOST', '0.0.0.0')
+    debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
+    
+    print(f"Starting Flask server on {host}:{port}")
+    app.run(debug=debug, host=host, port=port)
