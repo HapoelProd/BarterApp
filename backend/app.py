@@ -24,7 +24,7 @@ def home():
         }
     })
 
-@app.route('/api/suppliers', methods=['GET', 'POST'])
+@app.route('/api/suppliers', methods=['GET', 'POST']) # type: ignore
 def suppliers():
     if request.method == 'GET':
         try:
@@ -126,7 +126,7 @@ def supplier_operations(supplier_id):
         except Exception as e:
             return jsonify({"message": f"Server error: {str(e)}"}), 500
 
-@app.route('/api/orders', methods=['GET', 'POST'])
+@app.route('/api/orders', methods=['GET', 'POST']) # type: ignore
 def orders():
     if request.method == 'GET':
         try:
