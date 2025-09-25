@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { formatCurrency } from '../../utils/formatters';
+import API_ENDPOINTS from '../../config/api';
 
 interface Supplier {
   id: number;
@@ -28,7 +29,7 @@ const SupplierSidebar: React.FC<SupplierSidebarProps> = ({
     try {
       setIsLoading(true);
       setError('');
-      const response = await fetch('http://localhost:5000/api/suppliers');
+      const response = await fetch(API_ENDPOINTS.SUPPLIERS);
       if (response.ok) {
         const data = await response.json();
         // Sort by initial amount (highest first)

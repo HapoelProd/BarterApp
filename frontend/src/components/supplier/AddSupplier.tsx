@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import API_ENDPOINTS from '../../config/api';
 
 const AddSupplier: React.FC = () => {
   const [supplierData, setSupplierData] = useState({
@@ -46,7 +47,7 @@ const AddSupplier: React.FC = () => {
         currentAmount: parseFloat(finalCurrentAmount) || 0
       };
 
-      const response = await fetch('http://localhost:5000/api/suppliers', {
+      const response = await fetch(API_ENDPOINTS.SUPPLIERS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

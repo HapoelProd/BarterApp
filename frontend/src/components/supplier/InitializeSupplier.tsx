@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_ENDPOINTS, { getApiUrl } from '../../config/api';
 
 interface Supplier {
   id: number;
@@ -35,7 +36,7 @@ const InitializeSupplier: React.FC = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/suppliers');
+      const response = await fetch(API_ENDPOINTS.SUPPLIERS);
       if (response.ok) {
         const data = await response.json();
         // Sort suppliers A-Z by name
@@ -96,7 +97,7 @@ const InitializeSupplier: React.FC = () => {
         return;
       }
 
-      const response = await fetch(`http://localhost:5000/api/suppliers/${selectedSupplier}/initialize`, {
+      const response = await fetch(getApiUrl(`/api/suppliers/${selectedSupplier}/initialize`), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

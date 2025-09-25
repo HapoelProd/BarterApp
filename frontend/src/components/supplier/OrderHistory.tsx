@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import API_ENDPOINTS from '../../config/api';
 
 interface Order {
   order_id: string;
@@ -35,7 +36,7 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ selectedSupplier }) => {
   const fetchOrders = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:5000/api/orders');
+      const response = await fetch(API_ENDPOINTS.ORDERS);
       if (response.ok) {
         const data = await response.json();
         // Filter orders for the selected supplier

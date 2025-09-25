@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { formatCurrency, formatDate } from '../../utils/formatters';
+import API_ENDPOINTS, { getApiUrl } from '../../config/api';
 
 interface Order {
   order_id: string;
@@ -35,7 +36,7 @@ const OrderApprovals: React.FC = () => {
 
   const fetchSuppliers = useCallback(async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/suppliers');
+      const response = await fetch(API_ENDPOINTS.SUPPLIERS);
       if (response.ok) {
         const data = await response.json();
         setSuppliers(data);
@@ -48,7 +49,7 @@ const OrderApprovals: React.FC = () => {
   const fetchOrders = useCallback(async () => {
     try {
       setIsLoading(true);
-      const response = await fetch('http://localhost:5000/api/orders');
+      const response = await fetch(API_ENDPOINTS.ORDERS);
       if (response.ok) {
         const data = await response.json();
         
@@ -101,7 +102,7 @@ const OrderApprovals: React.FC = () => {
     setOrderErrors(prev => ({ ...prev, [orderId]: '' }));
 
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/approve`, {
+      const response = await fetch(getApiUrl(`/api/orders/${orderId}/approve`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -140,7 +141,7 @@ const OrderApprovals: React.FC = () => {
     setOrderErrors(prev => ({ ...prev, [orderId]: '' }));
 
     try {
-      const response = await fetch(`http://localhost:5000/api/orders/${orderId}/reject`, {
+      const response = await fetch(getApiUrl(`/api/orders/${orderId}/reject`), {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

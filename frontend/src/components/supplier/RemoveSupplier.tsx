@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import API_ENDPOINTS, { getApiUrl } from '../../config/api';
 
 interface Supplier {
   id: number;
@@ -22,7 +23,7 @@ const RemoveSupplier: React.FC = () => {
 
   const fetchSuppliers = async () => {
     try {
-      const response = await fetch('http://localhost:5000/api/suppliers');
+      const response = await fetch(API_ENDPOINTS.SUPPLIERS);
       if (response.ok) {
         const data = await response.json();
         // Sort suppliers A-Z by name
@@ -60,7 +61,7 @@ const RemoveSupplier: React.FC = () => {
     setMessage({ type: '', text: '' });
 
     try {
-      const response = await fetch(`http://localhost:5000/api/suppliers/${selectedSupplier}`, {
+      const response = await fetch(getApiUrl(`/api/suppliers/${selectedSupplier}`), {
         method: 'DELETE',
         headers: {
           'Content-Type': 'application/json',

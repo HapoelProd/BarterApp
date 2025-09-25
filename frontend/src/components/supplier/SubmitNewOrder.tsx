@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { formatCurrency, formatDateForInput } from '../../utils/formatters';
+import API_ENDPOINTS from '../../config/api';
 
 interface Supplier {
   id: number;
@@ -89,7 +90,7 @@ const SubmitNewOrder: React.FC<SubmitNewOrderProps> = ({
         handler: null
       };
 
-      const response = await fetch('http://localhost:5000/api/orders', {
+      const response = await fetch(API_ENDPOINTS.ORDERS, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

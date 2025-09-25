@@ -72,6 +72,22 @@ cd frontend
 set PORT=3001 && npm start  # Windows
 ```
 
+## Backend Port Configuration for Frontend
+If your backend runs on a different port, update the frontend configuration:
+
+1. **Edit `frontend/.env` file:**
+   ```
+   REACT_APP_API_URL=http://localhost:5001
+   ```
+   
+2. **Or set environment variable:**
+   ```bash
+   cd frontend
+   REACT_APP_API_URL=http://localhost:5001 npm start
+   ```
+
+**Important:** After changing the backend port in `.env`, restart the React development server for changes to take effect.
+
 ## Mac Users - AirPlay Conflict
 If you get "Port 5000 is in use", disable AirPlay Receiver:
 System Preferences → General → AirPlay & Handoff → Turn off "AirPlay Receiver"
