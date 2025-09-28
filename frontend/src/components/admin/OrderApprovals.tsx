@@ -28,7 +28,6 @@ interface OrderWithSupplier extends Order {
 const OrderApprovals: React.FC = () => {
   const [orders, setOrders] = useState<OrderWithSupplier[]>([]);
   const [suppliers, setSuppliers] = useState<Supplier[]>([]);
-  const [filter, setFilter] = useState<'Pending'>('Pending');
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
   const [adminNames, setAdminNames] = useState<{ [orderId: string]: string }>({});
