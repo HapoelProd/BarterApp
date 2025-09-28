@@ -1,8 +1,5 @@
-[phases.setup]
-nixPkgs = ["nodejs", "npm"]
-
 [phases.install]
-cmds = ["npm install --no-cache"]
+cmds = ["npm install --legacy-peer-deps --no-optional"]
 
 [phases.build]
 cmds = ["npm run build"]
