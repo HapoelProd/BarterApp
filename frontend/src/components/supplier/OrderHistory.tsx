@@ -57,8 +57,8 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ selectedSupplier }) => {
   useEffect(() => {
     fetchOrders();
     
-    // Set up polling to refresh data every 5 seconds to catch real-time changes
-    const interval = setInterval(fetchOrders, 5000);
+    // Set up polling to refresh data every 10 minutes to catch changes
+    const interval = setInterval(fetchOrders, 10 * 60 * 1000); // 10 minutes
     
     return () => clearInterval(interval);
   }, [fetchOrders]);
@@ -99,10 +99,43 @@ const OrderHistory: React.FC<OrderHistoryProps> = ({ selectedSupplier }) => {
 
   return (
     <div className="card">
-      <h3 style={{ marginBottom: '20px' }}>Order History - {selectedSupplier.name}</h3>
-      <p style={{ color: '#475569', marginBottom: '24px' }}>
-        Review all orders submitted for {selectedSupplier.name}, sorted by most recent first.
-      </p>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+        <div>
+          <h3 style={{ margin: '0 0 8px 0' }}>Order History - {selectedSupplier.name}</h3>
+          <p style={{ color: '#475569', margin: '0' }}>
+            Review all orders submitted for {selectedSupplier.name}, sorted by most recent first.
+          </p>
+        </div>
+        <button
+          onClick={fetchOrders}
+          disabled={isLoading}
+          style={{
+            background: isLoading ? '#9ca3af' : '#059669',
+            color: 'white',
+            border: 'none',
+            padding: '8px 16px',
+            borderRadius: '6px',
+            cursor: isLoading ? 'not-allowed' : 'pointer',
+            fontSize: '14px',
+            fontWeight: '500',
+            flexShrink: 0,
+            marginLeft: '20px'
+          }}
+          onMouseOver={(e) => {
+            if (!isLoading) {
+              e.currentTarget.style.background = '#047857';
+            }
+          }}
+          onMouseOut={(e) => {
+            if (!isLoading) {
+              e.currentTarget.style.background = '#059669';
+            }
+          }}
+        >
+          {isLoading ? 'Refreshing...' : 'Refresh'}
+        </button>
+      </div>
+      <div style={{ marginBottom: '24px' }}></div>
 
       {message.text && (
         <div className={`message ${message.type}`}>
