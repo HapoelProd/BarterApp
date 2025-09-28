@@ -240,7 +240,8 @@ def admin_login():
         }), 401
 
 if __name__ == '__main__':
-    port = int(os.getenv('FLASK_PORT', 5000))
+    # Railway provides PORT environment variable, fallback to FLASK_PORT or 5000
+    port = int(os.getenv('PORT', os.getenv('FLASK_PORT', 5000)))
     host = os.getenv('FLASK_HOST', '0.0.0.0')
     debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
     
