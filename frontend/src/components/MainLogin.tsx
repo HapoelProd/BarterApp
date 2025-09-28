@@ -94,7 +94,7 @@ const MainLogin: React.FC<MainLoginProps> = ({ onLogin }) => {
             margin: '0',
             fontSize: '16px'
           }}>
-            Hapoel JLM
+            Hapoel Jerusalem B.C.
           </p>
         </div>
 
