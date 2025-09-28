@@ -1,1 +1,1 @@
-web: npm run serve -- -l $PORT
+web: node_modules/.bin/serve -s build -l $PORT
