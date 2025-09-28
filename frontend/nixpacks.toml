@@ -1,8 +1,0 @@
-[phases.install]
-cmds = ["npm install --legacy-peer-deps --no-optional"]
-
-[phases.build]
-cmds = ["npm run build"]
-
-[phases.start]
-cmd = "npx serve -s build -l $PORT"
