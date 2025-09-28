@@ -9,6 +9,27 @@ const MainLogin: React.FC<MainLoginProps> = ({ onLogin }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Disable right-click and dev tools
+  React.useEffect(() => {
+    const disableRightClick = (e: MouseEvent) => e.preventDefault();
+    const disableKeyShortcuts = (e: KeyboardEvent) => {
+      if (e.key === 'F12' || 
+          (e.ctrlKey && e.shiftKey && e.key === 'I') ||
+          (e.ctrlKey && e.shiftKey && e.key === 'C') ||
+          (e.ctrlKey && e.key === 'u')) {
+        e.preventDefault();
+      }
+    };
+
+    document.addEventListener('contextmenu', disableRightClick);
+    document.addEventListener('keydown', disableKeyShortcuts);
+
+    return () => {
+      document.removeEventListener('contextmenu', disableRightClick);
+      document.removeEventListener('keydown', disableKeyShortcuts);
+    };
+  }, []);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
@@ -63,7 +84,8 @@ const MainLogin: React.FC<MainLoginProps> = ({ onLogin }) => {
             color: '#ffffff', 
             margin: '0 0 8px 0', 
             fontSize: '28px',
-            fontWeight: 'bold'
+            fontWeight: 'bold',
+            userSelect: 'none'
           }}>
             Barter Management System
           </h1>

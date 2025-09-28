@@ -11,14 +11,46 @@ function App() {
   // Check for existing authentication on component mount
   useEffect(() => {
     const authStatus = localStorage.getItem('mainAuth');
-    if (authStatus === 'authenticated') {
-      setIsMainAuthenticated(true);
+    const loginTime = localStorage.getItem('loginTime');
+    
+    if (authStatus === 'authenticated' && loginTime) {
+      const currentTime = Date.now();
+      const timeDiff = currentTime - parseInt(loginTime);
+      const thirtyMinutes = 30 * 60 * 1000; // 30 minutes in milliseconds
+      
+      if (timeDiff < thirtyMinutes) {
+        setIsMainAuthenticated(true);
+      } else {
+        // Auto logout after 30 minutes
+        handleMainLogout();
+      }
     }
   }, []);
+
+  // Auto logout timer
+  useEffect(() => {
+    if (isMainAuthenticated) {
+      const thirtyMinutes = 30 * 60 * 1000;
+      const timer = setTimeout(() => {
+        handleMainLogout();
+        alert('Session expired. Please log in again.');
+      }, thirtyMinutes);
+
+      return () => clearTimeout(timer);
+    }
+  }, [isMainAuthenticated]);
 
   const handleMainLogin = () => {
     setIsMainAuthenticated(true);
     localStorage.setItem('mainAuth', 'authenticated');
+    localStorage.setItem('loginTime', Date.now().toString());
+  };
+
+  const handleMainLogout = () => {
+    setIsMainAuthenticated(false);
+    setCurrentPage('home');
+    localStorage.removeItem('mainAuth');
+    localStorage.removeItem('loginTime');
   };
 
   const handleNavigate = (page: string) => {
@@ -32,7 +64,7 @@ function App() {
       case 'supplier':
         return <SupplierPage onNavigate={handleNavigate} />;
       default:
-        return <HomePage onNavigate={handleNavigate} />;
+        return <HomePage onNavigate={handleNavigate} onLogout={handleMainLogout} />;
     }
   };
 
