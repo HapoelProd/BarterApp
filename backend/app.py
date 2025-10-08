@@ -2,21 +2,39 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import os
 from dotenv import load_dotenv
-from database import init_database, add_supplier, get_all_suppliers, get_supplier_by_id, update_supplier, delete_supplier, initialize_supplier, add_order, get_all_orders, update_order_status
+from models import db, Supplier, Order, Transaction
+from config import config
 
 load_dotenv()
 
-app = Flask(__name__)
-CORS(app)
+def create_app(config_name=None):
+    """Application factory pattern"""
+    app = Flask(__name__)
+    
+    # Determine configuration
+    if config_name is None:
+        config_name = 'production' if os.getenv('DATABASE_URL', '').startswith('postgres') else 'development'
+    
+    app.config.from_object(config[config_name])
+    
+    # Initialize extensions
+    db.init_app(app)
+    CORS(app)
+    
+    # Create tables
+    with app.app_context():
+        db.create_all()
+    
+    return app
 
-# Initialize database on startup
-init_database()
+app = create_app()
 
 @app.route('/')
 def home():
     return jsonify({
         "message": "Barter Management System API",
-        "version": "1.0.0",
+        "version": "2.0.0",
+        "database": "PostgreSQL" if app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgresql') else "SQLite",
         "endpoints": {
             "/api/suppliers": "Supplier management",
             "/api/orders": "Order management",
@@ -24,12 +42,12 @@ def home():
         }
     })
 
-@app.route('/api/suppliers', methods=['GET', 'POST']) # type: ignore
+@app.route('/api/suppliers', methods=['GET', 'POST'])
 def suppliers():
     if request.method == 'GET':
         try:
-            suppliers_list = get_all_suppliers()
-            return jsonify(suppliers_list)
+            suppliers_list = Supplier.query.order_by(Supplier.name).all()
+            return jsonify([supplier.to_dict() for supplier in suppliers_list])
         except Exception as e:
             return jsonify({"error": f"Failed to fetch suppliers: {str(e)}"}), 500
     
@@ -54,28 +72,48 @@ def suppliers():
             if len(name) < 1:
                 return jsonify({"message": "Supplier name cannot be empty"}), 400
             
-            # Add supplier to database
-            result = add_supplier(name, initial_amount, current_amount)
+            # Check if supplier name already exists
+            existing_supplier = Supplier.query.filter_by(name=name).first()
+            if existing_supplier:
+                return jsonify({"message": "Supplier name already exists"}), 400
             
-            if result['success']:
-                # Get the created supplier
-                supplier = get_supplier_by_id(result['id'])
-                return jsonify({
-                    "message": result['message'],
-                    "supplier": supplier
-                }), 201
-            else:
-                return jsonify({"message": result['message']}), 400
+            # Create new supplier
+            supplier = Supplier(
+                name=name,
+                initial_amount=initial_amount,
+                current_amount=current_amount
+            )
+            
+            db.session.add(supplier)
+            db.session.flush()  # Get the ID
+            
+            # Create initial transaction
+            transaction = Transaction(
+                supplier_id=supplier.id,
+                transaction_type='initial',
+                amount=initial_amount,
+                description='Initial supplier setup'
+            )
+            
+            db.session.add(transaction)
+            db.session.commit()
+            
+            return jsonify({
+                "message": "Supplier added successfully",
+                "supplier": supplier.to_dict()
+            }), 201
                 
         except ValueError:
             return jsonify({"message": "Invalid number format for amounts"}), 400
         except Exception as e:
+            db.session.rollback()
             return jsonify({"message": f"Server error: {str(e)}"}), 500
 
 @app.route('/api/suppliers/<int:supplier_id>', methods=['PUT', 'DELETE'])
 def supplier_operations(supplier_id):
     if request.method == 'PUT':
         try:
+            supplier = Supplier.query.get_or_404(supplier_id)
             data = request.get_json()
             
             # Validate required fields
@@ -95,43 +133,62 @@ def supplier_operations(supplier_id):
             if len(name) < 1:
                 return jsonify({"message": "Supplier name cannot be empty"}), 400
             
-            # Update supplier in database
-            result = update_supplier(supplier_id, name, initial_amount, current_amount)
+            # Check if name is unique (exclude current supplier)
+            existing_supplier = Supplier.query.filter(
+                Supplier.name == name, 
+                Supplier.id != supplier_id
+            ).first()
+            if existing_supplier:
+                return jsonify({"message": "Supplier name already exists"}), 400
             
-            if result['success']:
-                # Get the updated supplier
-                supplier = get_supplier_by_id(supplier_id)
-                return jsonify({
-                    "message": result['message'],
-                    "supplier": supplier
-                }), 200
-            else:
-                return jsonify({"message": result['message']}), 400
+            # Update supplier
+            supplier.name = name
+            supplier.initial_amount = initial_amount
+            supplier.current_amount = current_amount
+            
+            # Create update transaction
+            transaction = Transaction(
+                supplier_id=supplier_id,
+                transaction_type='update',
+                amount=current_amount,
+                description=f'Supplier updated - Current amount set to {current_amount}'
+            )
+            
+            db.session.add(transaction)
+            db.session.commit()
+            
+            return jsonify({
+                "message": "Supplier updated successfully",
+                "supplier": supplier.to_dict()
+            }), 200
                 
         except ValueError:
             return jsonify({"message": "Invalid number format for amounts"}), 400
         except Exception as e:
+            db.session.rollback()
             return jsonify({"message": f"Server error: {str(e)}"}), 500
     
     elif request.method == 'DELETE':
         try:
-            # Delete supplier from database
-            result = delete_supplier(supplier_id)
+            supplier = Supplier.query.get_or_404(supplier_id)
+            supplier_name = supplier.name
             
-            if result['success']:
-                return jsonify({"message": result['message']}), 200
-            else:
-                return jsonify({"message": result['message']}), 404
+            # Delete supplier (cascade will handle transactions and orders)
+            db.session.delete(supplier)
+            db.session.commit()
+            
+            return jsonify({"message": f'Supplier "{supplier_name}" and all history deleted successfully'}), 200
                 
         except Exception as e:
+            db.session.rollback()
             return jsonify({"message": f"Server error: {str(e)}"}), 500
 
-@app.route('/api/orders', methods=['GET', 'POST']) # type: ignore
+@app.route('/api/orders', methods=['GET', 'POST'])
 def orders():
     if request.method == 'GET':
         try:
-            orders_list = get_all_orders()
-            return jsonify(orders_list)
+            orders_list = Order.query.order_by(Order.created_at.desc()).all()
+            return jsonify([order.to_dict() for order in orders_list])
         except Exception as e:
             return jsonify({"error": f"Failed to fetch orders: {str(e)}"}), 500
     
@@ -163,17 +220,39 @@ def orders():
             if len(ordered_by) < 1:
                 return jsonify({"message": "Ordered by cannot be empty"}), 400
             
-            # Add order to database
-            result = add_order(order_id, supplier_id, order_title, order_amount, order_date, ordered_by, notes)
+            # Check if order ID already exists
+            existing_order = Order.query.filter_by(order_id=order_id).first()
+            if existing_order:
+                return jsonify({"message": "Order ID already exists"}), 400
+            
+            # Verify supplier exists
+            supplier = Supplier.query.get(supplier_id)
+            if not supplier:
+                return jsonify({"message": "Supplier not found"}), 400
+            
+            # Create new order
+            order = Order(
+                order_id=order_id,
+                supplier_id=supplier_id,
+                order_title=order_title,
+                order_amount=order_amount,
+                order_date=order_date,
+                ordered_by=ordered_by,
+                notes=notes
+            )
+            
+            db.session.add(order)
+            db.session.commit()
             
             return jsonify({
-                "message": result['message'],
-                "order": result['order']
+                "message": "Order created successfully",
+                "order": order.to_dict()
             }), 201
                 
         except ValueError:
             return jsonify({"message": "Invalid number format for supplier ID or amount"}), 400
         except Exception as e:
+            db.session.rollback()
             return jsonify({"message": f"Server error: {str(e)}"}), 500
 
 @app.route('/api/orders/<order_id>/approve', methods=['PUT'])
@@ -185,17 +264,39 @@ def approve_order(order_id):
         if not handler_name:
             return jsonify({"message": "Handler name is required"}), 400
         
-        result = update_order_status(order_id, 'Approved', handler_name)
+        order = Order.query.filter_by(order_id=order_id).first()
+        if not order:
+            return jsonify({"message": "Order not found"}), 404
         
-        if result['success']:
-            return jsonify({
-                "message": result['message'],
-                "order": result['order']
-            }), 200
-        else:
-            return jsonify({"message": result['message']}), 400
+        if order.order_status != 'Pending':
+            return jsonify({"message": f"Order is already {order.order_status.lower()}"}), 400
+        
+        # Update order status
+        order.order_status = 'Approved'
+        order.handler = handler_name
+        
+        # Update supplier balance
+        supplier = order.supplier
+        supplier.current_amount -= order.order_amount
+        
+        # Create transaction record
+        transaction = Transaction(
+            supplier_id=order.supplier_id,
+            transaction_type='order_approved',
+            amount=-order.order_amount,
+            description=f'Order {order_id} approved by {handler_name}'
+        )
+        
+        db.session.add(transaction)
+        db.session.commit()
+        
+        return jsonify({
+            "message": f"Order {order_id} approved successfully by {handler_name}",
+            "order": order.to_dict()
+        }), 200
             
     except Exception as e:
+        db.session.rollback()
         return jsonify({"message": f"Server error: {str(e)}"}), 500
 
 @app.route('/api/orders/<order_id>/reject', methods=['PUT'])
@@ -207,25 +308,33 @@ def reject_order(order_id):
         if not handler_name:
             return jsonify({"message": "Handler name is required"}), 400
         
-        result = update_order_status(order_id, 'Rejected', handler_name)
+        order = Order.query.filter_by(order_id=order_id).first()
+        if not order:
+            return jsonify({"message": "Order not found"}), 404
         
-        if result['success']:
-            return jsonify({
-                "message": result['message'],
-                "order": result['order']
-            }), 200
-        else:
-            return jsonify({"message": result['message']}), 400
+        if order.order_status != 'Pending':
+            return jsonify({"message": f"Order is already {order.order_status.lower()}"}), 400
+        
+        # Update order status
+        order.order_status = 'Rejected'
+        order.handler = handler_name
+        
+        db.session.commit()
+        
+        return jsonify({
+            "message": f"Order {order_id} rejected successfully by {handler_name}",
+            "order": order.to_dict()
+        }), 200
             
     except Exception as e:
+        db.session.rollback()
         return jsonify({"message": f"Server error: {str(e)}"}), 500
-
 
 @app.route('/api/admin/login', methods=['POST'])
 def admin_login():
     data = request.get_json()
     password = data.get('password', '')
-    admin_password = os.getenv('ADMIN_PASSWORD', 'Hapoel2025')
+    admin_password = app.config['ADMIN_PASSWORD']
     
     if password == admin_password:
         return jsonify({
@@ -246,4 +355,5 @@ if __name__ == '__main__':
     debug = os.getenv('FLASK_DEBUG', 'True').lower() == 'true'
     
     print(f"Starting Flask server on {host}:{port}")
+    print(f"Database: {app.config['SQLALCHEMY_DATABASE_URI']}")
     app.run(debug=debug, host=host, port=port)
