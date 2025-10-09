@@ -7,10 +7,10 @@ db = SQLAlchemy()
 class Supplier(db.Model):
     __tablename__ = 'suppliers'
     
-    id = db.Column('Supplier_ID', db.Integer, primary_key=True, autoincrement=True)
-    name = db.Column('Supplier_Name', db.String(255), nullable=False, unique=True)
-    initial_amount = db.Column('Initial_Amount', db.Numeric(10, 2), nullable=False)
-    current_amount = db.Column('Current_Amount', db.Numeric(10, 2), nullable=False)
+    id = db.Column('supplier_id', db.Integer, primary_key=True, autoincrement=True)
+    name = db.Column('supplier_name', db.String(255), nullable=False, unique=True)
+    initial_amount = db.Column('initial_amount', db.Numeric(10, 2), nullable=False)
+    current_amount = db.Column('current_amount', db.Numeric(10, 2), nullable=False)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -51,18 +51,18 @@ class Transaction(db.Model):
 class Order(db.Model):
     __tablename__ = 'orders'
     __table_args__ = (
-        db.CheckConstraint("\"Order_Status\" IN ('Pending', 'Approved', 'Rejected')", name='order_status_check'),
+        db.CheckConstraint("order_status IN ('Pending', 'Approved', 'Rejected')", name='order_status_check'),
     )
     
-    order_id = db.Column('Order_ID', db.String(50), primary_key=True)
-    supplier_id = db.Column('Supplier_ID', db.Integer, db.ForeignKey('suppliers.Supplier_ID'), nullable=False)
-    order_title = db.Column('Order_Title', db.String(255), nullable=False)
-    order_amount = db.Column('Order_Amount', db.Numeric(10, 2), nullable=False)
-    order_date = db.Column('Order_Date', db.DateTime, default=datetime.utcnow)
-    ordered_by = db.Column('Order_By', db.String(100), nullable=False)
-    notes = db.Column('Notes', db.Text)
-    order_status = db.Column('Order_Status', db.String(20), default='Pending')
-    handler = db.Column('Handler', db.String(100))
+    order_id = db.Column('order_id', db.String(50), primary_key=True)
+    supplier_id = db.Column('supplier_id', db.Integer, db.ForeignKey('suppliers.supplier_id'), nullable=False)
+    order_title = db.Column('order_title', db.String(255), nullable=False)
+    order_amount = db.Column('order_amount', db.Numeric(10, 2), nullable=False)
+    order_date = db.Column('order_date', db.DateTime, default=datetime.utcnow)
+    ordered_by = db.Column('ordered_by', db.String(100), nullable=False)
+    notes = db.Column('notes', db.Text)
+    order_status = db.Column('order_status', db.String(20), default='Pending')
+    handler = db.Column('handler', db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
     def to_dict(self):
