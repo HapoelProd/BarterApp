@@ -50,6 +50,9 @@ class Transaction(db.Model):
 
 class Order(db.Model):
     __tablename__ = 'orders'
+    __table_args__ = (
+        db.CheckConstraint("\"Order_Status\" IN ('Pending', 'Approved', 'Rejected')", name='order_status_check'),
+    )
     
     order_id = db.Column('Order_ID', db.String(50), primary_key=True)
     supplier_id = db.Column('Supplier_ID', db.Integer, db.ForeignKey('suppliers.Supplier_ID'), nullable=False)
@@ -58,9 +61,7 @@ class Order(db.Model):
     order_date = db.Column('Order_Date', db.DateTime, default=datetime.utcnow)
     ordered_by = db.Column('Order_By', db.String(100), nullable=False)
     notes = db.Column('Notes', db.Text)
-    order_status = db.Column('Order_Status', db.String(20), 
-                           db.CheckConstraint("Order_Status IN ('Pending', 'Approved', 'Rejected')"),
-                           default='Pending')
+    order_status = db.Column('Order_Status', db.String(20), default='Pending')
     handler = db.Column('Handler', db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     
