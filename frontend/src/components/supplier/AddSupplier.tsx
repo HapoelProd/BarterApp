@@ -58,7 +58,12 @@ const AddSupplier: React.FC = () => {
       if (response.ok) {
         await response.json();
         setMessage({ type: 'success', text: 'Supplier added successfully!' });
-        handleReset();
+        // Reset form data but keep the success message
+        setSupplierData({
+          name: '',
+          initialAmount: '',
+          currentAmount: ''
+        });
       } else {
         const error = await response.json();
         setMessage({ type: 'error', text: error.message || 'Failed to add supplier' });
