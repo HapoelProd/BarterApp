@@ -7,7 +7,7 @@ db = SQLAlchemy()
 class Supplier(db.Model):
     __tablename__ = 'suppliers'
     
-    id = db.Column('Supplier_ID', db.Integer, primary_key=True, autoincrement=True)
+    id = db.Column('supplier_id', db.Integer, primary_key=True, autoincrement=True)
     name = db.Column('supplier_name', db.String(255), nullable=False, unique=True)
     initial_amount = db.Column('initial_amount', db.Numeric(10, 2), nullable=False)
     current_amount = db.Column('current_amount', db.Numeric(10, 2), nullable=False)
@@ -32,7 +32,7 @@ class Transaction(db.Model):
     __tablename__ = 'transactions'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.Supplier_ID'), nullable=False)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.supplier_id'), nullable=False)
     transaction_type = db.Column(db.String(50), nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     description = db.Column(db.Text)
@@ -55,7 +55,7 @@ class Order(db.Model):
     )
     
     order_id = db.Column('order_id', db.String(50), primary_key=True)
-    supplier_id = db.Column('supplier_id', db.Integer, db.ForeignKey('suppliers.Supplier_ID'), nullable=False)
+    supplier_id = db.Column('supplier_id', db.Integer, db.ForeignKey('suppliers.supplier_id'), nullable=False)
     order_title = db.Column('order_title', db.String(255), nullable=False)
     order_amount = db.Column('order_amount', db.Numeric(10, 2), nullable=False)
     order_date = db.Column('order_date', db.DateTime, default=datetime.utcnow)
