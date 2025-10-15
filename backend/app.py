@@ -11,9 +11,9 @@ def create_app(config_name=None):
     """Application factory pattern"""
     app = Flask(__name__)
     
-    # Determine configuration
+    # Use production configuration (PostgreSQL only)
     if config_name is None:
-        config_name = 'production' if os.getenv('DATABASE_URL', '').startswith('postgres') else 'development'
+        config_name = 'production'
     
     app.config.from_object(config[config_name])
     
@@ -34,7 +34,7 @@ def home():
     return jsonify({
         "message": "Barter Management System API",
         "version": "2.0.0",
-        "database": "PostgreSQL" if app.config['SQLALCHEMY_DATABASE_URI'].startswith('postgresql') else "SQLite",
+        "database": "PostgreSQL",
         "endpoints": {
             "/api/suppliers": "Supplier management",
             "/api/orders": "Order management",

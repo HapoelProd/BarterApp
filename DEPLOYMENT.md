@@ -60,8 +60,7 @@ REACT_APP_API_URL=https://your-backend-url.railway.app
 4. Test order creation and approval
 
 ## Important Notes
-- SQLite database will persist on Railway but may reset on redeploys
-- For production, consider upgrading to PostgreSQL (Railway provides this)
+- PostgreSQL database is configured and will persist on Railway
 - CORS is already configured for cross-origin requests
 - All necessary deployment files are included
 
