@@ -32,7 +32,7 @@ class Transaction(db.Model):
     __tablename__ = 'transactions'
     
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.Supplier_ID'), nullable=False)
+    supplier_id = db.Column(db.Integer, db.ForeignKey('suppliers.supplier_id'), nullable=False)
     transaction_type = db.Column(db.String(50), nullable=False)
     amount = db.Column(db.Numeric(10, 2), nullable=False)
     description = db.Column(db.Text)
