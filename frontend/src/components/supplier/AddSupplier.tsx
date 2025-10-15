@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import API_ENDPOINTS from '../../config/api';
 
 const AddSupplier: React.FC = () => {
@@ -9,6 +9,11 @@ const AddSupplier: React.FC = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
+
+  // Debug: Log message state changes
+  useEffect(() => {
+    console.log('Message state changed:', message);
+  }, [message]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -97,7 +102,6 @@ const AddSupplier: React.FC = () => {
         Add a new supplier to the system with their initial and current balance amounts.
       </p>
       
-      {console.log('Current message state:', message)}
       {message.text && (
         <div style={{ 
           padding: '12px', 
