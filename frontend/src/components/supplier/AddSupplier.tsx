@@ -47,6 +47,7 @@ const AddSupplier: React.FC = () => {
         currentAmount: parseFloat(finalCurrentAmount) || 0
       };
 
+      console.log('Submitting supplier:', supplierToSubmit);
       const response = await fetch(API_ENDPOINTS.SUPPLIERS, {
         method: 'POST',
         headers: {
@@ -55,9 +56,14 @@ const AddSupplier: React.FC = () => {
         body: JSON.stringify(supplierToSubmit),
       });
 
+      console.log('Response status:', response.status, 'Response OK:', response.ok);
+      
       if (response.ok) {
-        await response.json();
+        const result = await response.json();
+        console.log('Success response:', result);
+        console.log('Setting success message...');
         setMessage({ type: 'success', text: 'Supplier added successfully!' });
+        console.log('Message state should be set');
         // Reset form data but keep the success message
         setSupplierData({
           name: '',
@@ -66,6 +72,7 @@ const AddSupplier: React.FC = () => {
         });
       } else {
         const error = await response.json();
+        console.log('Error response:', error);
         setMessage({ type: 'error', text: error.message || 'Failed to add supplier' });
       }
     } catch (error) {
@@ -90,6 +97,7 @@ const AddSupplier: React.FC = () => {
         Add a new supplier to the system with their initial and current balance amounts.
       </p>
       
+      {console.log('Current message state:', message)}
       {message.text && (
         <div style={{ 
           padding: '12px', 
