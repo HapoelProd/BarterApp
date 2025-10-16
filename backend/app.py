@@ -64,6 +64,7 @@ def suppliers():
             name = data['name'].strip()
             initial_amount = float(data['initialAmount'])
             current_amount = float(data.get('currentAmount', initial_amount))
+            supplier_financial_id = data.get('supplierFinancialId')
             
             # Validate values
             if initial_amount < 0 or current_amount < 0:
@@ -81,7 +82,8 @@ def suppliers():
             supplier = Supplier(
                 name=name,
                 initial_amount=initial_amount,
-                current_amount=current_amount
+                current_amount=current_amount,
+                supplier_financial_id=supplier_financial_id
             )
             
             db.session.add(supplier)
@@ -125,6 +127,7 @@ def supplier_operations(supplier_id):
             name = data['name'].strip()
             initial_amount = float(data['initialAmount'])
             current_amount = float(data['currentAmount'])
+            supplier_financial_id = data.get('supplierFinancialId')
             
             # Validate values
             if initial_amount < 0 or current_amount < 0:
@@ -145,6 +148,7 @@ def supplier_operations(supplier_id):
             supplier.name = name
             supplier.initial_amount = initial_amount
             supplier.current_amount = current_amount
+            supplier.supplier_financial_id = supplier_financial_id
             
             # Create update transaction
             transaction = Transaction(

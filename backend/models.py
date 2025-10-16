@@ -11,6 +11,7 @@ class Supplier(db.Model):
     name = db.Column('supplier_name', db.String(255), nullable=False, unique=True)
     initial_amount = db.Column('initial_amount', db.Numeric(10, 2), nullable=False)
     current_amount = db.Column('current_amount', db.Numeric(10, 2), nullable=False)
+    supplier_financial_id = db.Column('supplier_financial_id', db.Integer, nullable=True)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
     updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -24,6 +25,7 @@ class Supplier(db.Model):
             'name': self.name,
             'initial_amount': float(self.initial_amount),
             'current_amount': float(self.current_amount),
+            'supplier_financial_id': self.supplier_financial_id,
             'created_at': self.created_at.isoformat() if self.created_at else None,
             'updated_at': self.updated_at.isoformat() if self.updated_at else None
         }

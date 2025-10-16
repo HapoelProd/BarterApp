@@ -5,7 +5,8 @@ const AddSupplier: React.FC = () => {
   const [supplierData, setSupplierData] = useState({
     name: '',
     initialAmount: '',
-    currentAmount: ''
+    currentAmount: '',
+    supplierFinancialId: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState({ type: '', text: '' });
@@ -49,7 +50,8 @@ const AddSupplier: React.FC = () => {
       const supplierToSubmit = {
         name: supplierData.name,
         initialAmount: parseFloat(supplierData.initialAmount) || 0,
-        currentAmount: parseFloat(finalCurrentAmount) || 0
+        currentAmount: parseFloat(finalCurrentAmount) || 0,
+        supplierFinancialId: supplierData.supplierFinancialId ? parseInt(supplierData.supplierFinancialId) : null
       };
 
       console.log('Submitting supplier:', supplierToSubmit);
@@ -73,7 +75,8 @@ const AddSupplier: React.FC = () => {
         setSupplierData({
           name: '',
           initialAmount: '',
-          currentAmount: ''
+          currentAmount: '',
+          supplierFinancialId: ''
         });
       } else {
         const error = await response.json();
@@ -91,7 +94,8 @@ const AddSupplier: React.FC = () => {
     setSupplierData({
       name: '',
       initialAmount: '',
-      currentAmount: ''
+      currentAmount: '',
+      supplierFinancialId: ''
     });
     setMessage({ type: '', text: '' });
   };
@@ -172,6 +176,26 @@ const AddSupplier: React.FC = () => {
             />
             <small style={{ color: '#000000ff', opacity: 0.7, fontSize: '12px' }}>
               Leave empty to default to Initial Amount
+            </small>
+          </div>
+
+          <div>
+            <label style={{ color: '#000000ff', display: 'block', marginBottom: '8px' }}>
+              Supplier Financial ID
+            </label>
+            <input
+              type="number"
+              name="supplierFinancialId"
+              value={supplierData.supplierFinancialId}
+              onChange={handleInputChange}
+              className="input"
+              style={{ width: '100%' }}
+              placeholder="Optional financial system ID"
+              min="0"
+              disabled={isSubmitting}
+            />
+            <small style={{ color: '#000000ff', opacity: 0.7, fontSize: '12px' }}>
+              Optional field for financial system integration
             </small>
           </div>
         </div>
